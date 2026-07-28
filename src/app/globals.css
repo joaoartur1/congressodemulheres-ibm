@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta oficial — docs/ID VISUAL CONGRESSO DE MULHERES 2026.pdf */
+  --color-roxo: #64579b;
+  --color-lilas: #b2a0d2;
+  --color-azul: #9fbddc;
+  --color-verde: #b4c8b1;
+  --color-creme: #f8eee2;
+  --color-dourado: #ebd8bb;
+
+  --color-roxo-escuro: #453b6e;
+  --color-texto: #332c4d;
+  /* Escurecido para 4.5:1+ contra branco e creme (era #7d7495, ~3.8–4.4:1 — reprovava WCAG AA) */
+  --color-muted: #706886;
+
+  /* Escurecido para 4.5:1+ contra sucesso-bg (era #4f7a5c, 4.16:1 — reprovava WCAG AA) */
+  --color-sucesso: #4a7256;
+  --color-sucesso-bg: #e4efe3;
+  --color-perigo: #a85a62;
+  --color-perigo-bg: #f5e4e4;
+  /* Escurecido para 4.5:1+ contra aviso-bg (era #a17a3a, 3.39:1 — reprovava WCAG AA) */
+  --color-aviso: #876630;
+  --color-aviso-bg: #f6eeda;
+
+  --background: var(--color-creme);
+  --foreground: var(--color-texto);
+}
+
+@theme inline {
+  --color-roxo: var(--color-roxo);
+  --color-roxo-escuro: var(--color-roxo-escuro);
+  --color-lilas: var(--color-lilas);
+  --color-azul: var(--color-azul);
+  --color-verde: var(--color-verde);
+  --color-creme: var(--color-creme);
+  --color-dourado: var(--color-dourado);
+  --color-texto: var(--color-texto);
+  --color-muted: var(--color-muted);
+  --color-sucesso: var(--color-sucesso);
+  --color-sucesso-bg: var(--color-sucesso-bg);
+  --color-perigo: var(--color-perigo);
+  --color-perigo-bg: var(--color-perigo-bg);
+  --color-aviso: var(--color-aviso);
+  --color-aviso-bg: var(--color-aviso-bg);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-titulo: var(--font-cormorant);
+  --font-corpo: var(--font-open-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-corpo), sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-lilas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-roxo);
+  border-radius: 3px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(100, 87, 155, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 36px rgba(100, 87, 155, 0.45);
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+.animate-shimmer {
+  animation: shimmer 2.5s ease infinite;
+}
+.animate-glow {
+  animation: glow 3s ease infinite;
+}
+.animate-spin-slow {
+  animation: spin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .animate-shimmer,
+  .animate-glow,
+  .animate-spin-slow {
+    animation: none !important;
+  }
+}
