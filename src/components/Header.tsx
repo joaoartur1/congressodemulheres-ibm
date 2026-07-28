@@ -30,8 +30,8 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-[100] bg-gradient-to-br from-roxo-escuro via-roxo to-lilas px-6 shadow-lg">
-      <div className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-2 py-3">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="mx-auto flex max-w-[1100px] items-center gap-2 py-3">
+        <Link href="/" className="flex shrink-0 items-center gap-2">
           <Image
             src="/brand/logo_monograma_oval.png"
             alt=""
@@ -46,12 +46,12 @@ export function Header({
             </span>
           </span>
         </Link>
-        <nav className="flex flex-wrap items-center gap-1">
+        <nav className="scrollbar-hide flex flex-1 items-center gap-1 overflow-x-auto">
           {tabs.map((t) => (
             <Link
               key={t.href}
               href={t.href}
-              className={`whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.78rem] font-medium tracking-wide transition ${
+              className={`shrink-0 whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.78rem] font-medium tracking-wide transition ${
                 pathname === t.href
                   ? "bg-white/15 text-white"
                   : "text-lilas hover:bg-white/15 hover:text-white"
@@ -63,14 +63,14 @@ export function Header({
           {role ? (
             <button
               onClick={onLogout}
-              className="whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.78rem] font-medium text-[#f3c9cc] transition hover:bg-perigo/20"
+              className="shrink-0 whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.78rem] font-medium text-[#f3c9cc] transition hover:bg-perigo/20"
             >
               Sair
             </button>
           ) : (
             <button
               onClick={onOpenLogin}
-              className="whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.78rem] font-medium text-lilas transition hover:bg-white/15 hover:text-white"
+              className="shrink-0 whitespace-nowrap rounded-full px-3 py-[0.45rem] text-[0.78rem] font-medium text-lilas transition hover:bg-white/15 hover:text-white"
             >
               Acesso da Equipe
             </button>

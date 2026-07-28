@@ -11,6 +11,7 @@ function calcularRestante() {
     dias: Math.floor(diff / (1000 * 60 * 60 * 24)),
     horas: Math.floor((diff / (1000 * 60 * 60)) % 24),
     minutos: Math.floor((diff / (1000 * 60)) % 60),
+    segundos: Math.floor((diff / 1000) % 60),
   };
 }
 
@@ -22,7 +23,7 @@ export function Countdown() {
       setTempo(calcularRestante());
     }
     tick();
-    const id = setInterval(tick, 1000 * 30);
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -45,21 +46,22 @@ export function Countdown() {
   const itens = [
     { valor: tempo.dias, label: tempo.dias === 1 ? "dia" : "dias" },
     { valor: tempo.horas, label: "horas" },
-    { valor: tempo.minutos, label: "minutos" },
+    { valor: tempo.minutos, label: "min" },
+    { valor: tempo.segundos, label: "seg" },
   ];
 
   return (
-    <div className="relative z-20 -mt-10 flex justify-center px-6 sm:-mt-12">
-      <div className="flex items-center gap-4 rounded-2xl bg-white px-6 py-4 shadow-[0_10px_40px_rgba(45,0,87,0.2)] sm:gap-6 sm:px-10 sm:py-5">
+    <div className="relative z-20 -mt-10 flex justify-center px-4 sm:-mt-12 sm:px-6">
+      <div className="flex items-center gap-2 rounded-2xl bg-white px-4 py-3 shadow-[0_10px_40px_rgba(45,0,87,0.2)] sm:gap-6 sm:px-10 sm:py-5">
         <span className="hidden text-2xl sm:inline">✦</span>
         {itens.map((it, i) => (
-          <div key={it.label} className="flex items-center gap-4 sm:gap-6">
-            {i > 0 && <div className="h-8 w-px bg-lilas" />}
+          <div key={it.label} className="flex items-center gap-2 sm:gap-6">
+            {i > 0 && <div className="h-7 w-px bg-lilas sm:h-8" />}
             <div className="text-center">
-              <div className="font-titulo text-3xl font-bold leading-none text-roxo sm:text-4xl">
+              <div className="font-titulo text-xl font-bold leading-none text-roxo tabular-nums sm:text-4xl">
                 {it.valor}
               </div>
-              <div className="mt-1 text-[0.65rem] uppercase tracking-[0.1em] text-muted">
+              <div className="mt-1 text-[0.55rem] uppercase tracking-[0.08em] text-muted sm:text-[0.65rem]">
                 {it.label}
               </div>
             </div>

@@ -53,13 +53,19 @@ export default function HomePage() {
     <>
       <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-gradient-to-br from-roxo-escuro via-roxo to-lilas px-6 py-16 text-center">
         <Image
-          src="/brand/flyer_versao2.png"
+          src="/brand/floral_canto_glicinia.png"
           alt=""
-          fill
-          priority
-          className="object-cover object-center opacity-15 mix-blend-luminosity"
+          width={218}
+          height={231}
+          className="pointer-events-none absolute -top-4 -left-4 w-[130px] opacity-70 sm:w-[170px]"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-roxo-escuro/80 via-roxo/70 to-lilas/60" />
+        <Image
+          src="/brand/floral_canto_1.png"
+          alt=""
+          width={178}
+          height={461}
+          className="pointer-events-none absolute -bottom-6 -right-4 w-[100px] -scale-x-100 opacity-70 sm:w-[140px]"
+        />
         <div className="pointer-events-none absolute -right-24 -top-24 h-[300px] w-[300px] rounded-full border border-dourado/20" />
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-[200px] w-[200px] rounded-full border border-white/15" />
         <div
