@@ -1,7 +1,17 @@
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { SectionTitle } from "@/components/ui";
 import { VIDEO_RESUMO_URL, EVENTO } from "@/lib/config";
 import { youtubeEmbedUrl } from "@/lib/utils";
+
+const FOTOS_EVENTO_PASSADO = [
+  "/fotos-evento/foto-1.jpg",
+  "/fotos-evento/foto-2.jpg",
+  "/fotos-evento/foto-3.jpg",
+  "/fotos-evento/foto-4.jpg",
+  "/fotos-evento/foto-5.jpg",
+  "/fotos-evento/foto-6.jpg",
+];
 
 export default async function ConhecaOEventoPage() {
   const supabase = await createClient();
@@ -38,6 +48,33 @@ export default async function ConhecaOEventoPage() {
             </p>
           </div>
         )}
+      </div>
+
+      <div className="mt-16">
+        <h2 className="text-center font-titulo text-2xl font-bold text-roxo">
+          Fotos do Congresso Passado
+        </h2>
+        <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {FOTOS_EVENTO_PASSADO.map((src) => (
+            <a
+              key={src}
+              href={src}
+              target="_blank"
+              rel="noreferrer"
+              className="relative block aspect-[3/4] overflow-hidden rounded-xl border border-lilas shadow-[0_2px_10px_rgba(100,87,155,0.08)] transition hover:opacity-90"
+            >
+              <Image
+                src={src}
+                alt={`Foto do ${EVENTO.subtitulo.replace("2026", "")} passado`}
+                fill
+                sizes="(max-width: 640px) 50vw, 33vw"
+                className="object-cover"
+              />
+            </a>
+          ))}
+        </div>
       </div>
 
       <div className="mt-16">
