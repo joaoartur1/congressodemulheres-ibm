@@ -29,3 +29,8 @@ export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
 // Hospedagem" — texto livre, o Google resolve a geolocalização (não temos o
 // endereço exato/coordenadas do Lions Clube cadastrado ainda).
 export const ENDERECO_BUSCA = `${EVENTO.local}, ${EVENTO.cidade}`;
+
+// TODO: preencher com o link do vídeo resumo do congresso do ano passado
+// (YouTube ou Instagram) na aba "Conheça o Evento". Deixe vazio para mostrar
+// "em breve" enquanto o vídeo não estiver disponível.
+export const VIDEO_RESUMO_URL = "";

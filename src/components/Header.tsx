@@ -9,7 +9,9 @@ import type { Role } from "@/lib/supabase/types";
 const TABS: { href: string; label: string }[] = [
   { href: "/", label: "Início" },
   { href: "/programacao", label: "Cronograma" },
+  { href: "/conheca-o-evento", label: "Conheça o Evento" },
   { href: "/local", label: "Local e Hospedagem" },
+  { href: "/perguntas-frequentes", label: "Perguntas Frequentes" },
   { href: "/inscricao", label: "Inscrição" },
   { href: "/meu-passe", label: "Meu Passe" },
 ];

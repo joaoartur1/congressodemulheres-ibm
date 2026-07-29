@@ -89,6 +89,40 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["programacao"]["Insert"]>;
         Relationships: [];
       };
+      palestrantes: {
+        Row: {
+          id: number;
+          nome: string;
+          foto_url: string | null;
+          resumo: string;
+          ordem: number;
+        };
+        Insert: {
+          id?: number;
+          nome: string;
+          foto_url?: string | null;
+          resumo: string;
+          ordem?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["palestrantes"]["Insert"]>;
+        Relationships: [];
+      };
+      perguntas_frequentes: {
+        Row: {
+          id: number;
+          pergunta: string;
+          resposta: string;
+          ordem: number;
+        };
+        Insert: {
+          id?: number;
+          pergunta: string;
+          resposta: string;
+          ordem?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["perguntas_frequentes"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Functions: {
       criar_inscricao: {
