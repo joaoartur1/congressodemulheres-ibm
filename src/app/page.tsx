@@ -131,6 +131,23 @@ export default function HomePage() {
         </div>
       </div>
 
+      <div className="fade-in bg-lilas/15 px-6 py-16">
+        <div className="mx-auto flex max-w-[600px] flex-col items-center text-center">
+          <div className="mb-3 text-4xl">🎬</div>
+          <h2 className="font-titulo text-2xl font-bold text-roxo">Conheça o Evento</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Reviva os melhores momentos do congresso do ano passado e conheça as palestrantes
+            confirmadas para {EVENTO.subtitulo}.
+          </p>
+          <Link
+            href="/conheca-o-evento"
+            className="mt-5 inline-block rounded-full border-2 border-roxo px-6 py-2.5 text-sm font-semibold text-roxo transition hover:bg-roxo hover:text-white"
+          >
+            Ver vídeo e palestrantes ✦
+          </Link>
+        </div>
+      </div>
+
       <div className="fade-in bg-white px-6 py-16">
         <div className="mx-auto max-w-[1100px]">
           <h2 className="text-center font-titulo text-2xl font-bold text-roxo">Acesso Rápido</h2>
@@ -148,6 +165,23 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="fade-in px-6 py-16">
+        <div className="mx-auto flex max-w-[600px] flex-col items-center text-center">
+          <div className="mb-3 text-4xl">❓</div>
+          <h2 className="font-titulo text-2xl font-bold text-roxo">Perguntas Frequentes</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Dúvidas sobre inscrição, pagamento via PIX ou check-in no dia do evento? A gente já
+            respondeu as mais comuns.
+          </p>
+          <Link
+            href="/perguntas-frequentes"
+            className="mt-5 inline-block rounded-full border-2 border-roxo px-6 py-2.5 text-sm font-semibold text-roxo transition hover:bg-roxo hover:text-white"
+          >
+            Ver perguntas frequentes ✦
+          </Link>
         </div>
       </div>
 
