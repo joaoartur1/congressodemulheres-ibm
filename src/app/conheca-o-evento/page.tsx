@@ -4,8 +4,8 @@ import { SectionTitle } from "@/components/ui";
 import { EVENTO } from "@/lib/config";
 
 const VIDEOS_EVENTO_PASSADO = [
-  "/videos-evento/resumo-1.mp4",
-  "/videos-evento/resumo-2.mp4",
+  { src: "/videos-evento/resumo-1.mp4", poster: "/videos-evento/resumo-1-poster.jpg" },
+  { src: "/videos-evento/resumo-2.mp4", poster: "/videos-evento/resumo-2-poster.jpg" },
 ];
 
 const FOTOS_EVENTO_PASSADO = [
@@ -31,13 +31,14 @@ export default async function ConhecaOEventoPage() {
       </SectionTitle>
 
       <div className="mx-auto grid max-w-[900px] grid-cols-1 gap-6 sm:grid-cols-2">
-        {VIDEOS_EVENTO_PASSADO.map((src, i) => (
+        {VIDEOS_EVENTO_PASSADO.map((v, i) => (
           <div
-            key={src}
+            key={v.src}
             className="aspect-[9/16] overflow-hidden rounded-2xl border border-lilas bg-black shadow-[0_8px_40px_rgba(100,87,155,0.15)]"
           >
             <video
-              src={src}
+              src={v.src}
+              poster={v.poster}
               controls
               preload="metadata"
               className="h-full w-full"
