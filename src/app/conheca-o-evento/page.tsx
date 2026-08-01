@@ -1,8 +1,12 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { SectionTitle } from "@/components/ui";
-import { VIDEO_RESUMO_URL, EVENTO } from "@/lib/config";
-import { youtubeEmbedUrl } from "@/lib/utils";
+import { EVENTO } from "@/lib/config";
+
+const VIDEOS_EVENTO_PASSADO = [
+  "/videos-evento/resumo-1.mp4",
+  "/videos-evento/resumo-2.mp4",
+];
 
 const FOTOS_EVENTO_PASSADO = [
   "/fotos-evento/foto-1.jpg",
@@ -20,34 +24,27 @@ export default async function ConhecaOEventoPage() {
     .select("*")
     .order("ordem", { ascending: true });
 
-  const embedUrl = VIDEO_RESUMO_URL ? youtubeEmbedUrl(VIDEO_RESUMO_URL) : null;
-
   return (
     <div className="fade-in mx-auto max-w-[1100px] px-6 py-16">
       <SectionTitle subtitle={`Reviva os melhores momentos e conheça quem vai ministrar no ${EVENTO.subtitulo}`}>
         Conheça o <em className="italic text-lilas">Evento</em>
       </SectionTitle>
 
-      <div className="mx-auto max-w-[720px]">
-        {embedUrl ? (
-          <div className="aspect-video overflow-hidden rounded-2xl border border-lilas shadow-[0_8px_40px_rgba(100,87,155,0.15)]">
-            <iframe
-              src={embedUrl}
-              title={`Vídeo resumo — ${EVENTO.subtitulo}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+      <div className="mx-auto grid max-w-[900px] grid-cols-1 gap-6 sm:grid-cols-2">
+        {VIDEOS_EVENTO_PASSADO.map((src, i) => (
+          <div
+            key={src}
+            className="aspect-[9/16] overflow-hidden rounded-2xl border border-lilas bg-black shadow-[0_8px_40px_rgba(100,87,155,0.15)]"
+          >
+            <video
+              src={src}
+              controls
+              preload="metadata"
               className="h-full w-full"
+              aria-label={`Vídeo resumo ${i + 1} — ${EVENTO.subtitulo}`}
             />
           </div>
-        ) : (
-          <div className="flex aspect-video flex-col items-center justify-center rounded-2xl border-2 border-dashed border-lilas bg-white text-center">
-            <div className="mb-2 text-4xl">🎬</div>
-            <p className="font-titulo text-lg font-semibold text-roxo">Vídeo em breve</p>
-            <p className="mt-1 max-w-xs text-sm text-muted">
-              O resumo do congresso do ano passado estará disponível aqui em breve.
-            </p>
-          </div>
-        )}
+        ))}
       </div>
 
       <div className="mt-16">

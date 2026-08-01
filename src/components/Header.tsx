@@ -10,6 +10,7 @@ const TABS: { href: string; label: string }[] = [
   { href: "/", label: "Início" },
   { href: "/programacao", label: "Cronograma" },
   { href: "/conheca-o-evento", label: "Conheça o Evento" },
+  { href: "/paleta-e-estilo", label: "Paleta e Estilo" },
   { href: "/local", label: "Local e Hospedagem" },
   { href: "/perguntas-frequentes", label: "Perguntas Frequentes" },
   { href: "/inscricao", label: "Inscrição" },

@@ -30,7 +30,12 @@ export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
 // endereço exato/coordenadas do Lions Clube cadastrado ainda).
 export const ENDERECO_BUSCA = `${EVENTO.local}, ${EVENTO.cidade}`;
 
-// TODO: preencher com o link do vídeo resumo do congresso do ano passado
-// (YouTube ou Instagram) na aba "Conheça o Evento". Deixe vazio para mostrar
-// "em breve" enquanto o vídeo não estiver disponível.
-export const VIDEO_RESUMO_URL = "";
+// Paleta oficial — docs/ID VISUAL CONGRESSO DE MULHERES 2026.pdf
+export const PALETA_CORES = [
+  { nome: "Roxo Profundo", hex: "#64579B" },
+  { nome: "Lilás", hex: "#B2A0D2" },
+  { nome: "Azul Suave", hex: "#9FBDDC" },
+  { nome: "Verde Sálvia", hex: "#B4C8B1" },
+  { nome: "Creme", hex: "#F8EEE2" },
+  { nome: "Dourado", hex: "#EBD8BB" },
+] as const;

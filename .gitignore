@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# material de referência bruto (PDF, fotos/vídeos originais) — o que o site
+# usa de verdade já foi copiado pra public/
+/docs
+/fotoscongresso

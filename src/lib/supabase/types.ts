@@ -123,6 +123,22 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["perguntas_frequentes"]["Insert"]>;
         Relationships: [];
       };
+      looks: {
+        Row: {
+          id: number;
+          foto_url: string;
+          legenda: string | null;
+          ordem: number;
+        };
+        Insert: {
+          id?: number;
+          foto_url: string;
+          legenda?: string | null;
+          ordem?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["looks"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Functions: {
       criar_inscricao: {
