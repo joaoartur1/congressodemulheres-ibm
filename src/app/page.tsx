@@ -103,8 +103,8 @@ export default function HomePage() {
       <Countdown />
 
       <div className="fade-in mx-auto max-w-[1100px] px-6 py-16">
-        <h2 className="text-center font-titulo text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-roxo">
-          Ela à <em className="italic text-lilas">Imagem</em> Dele
+        <h2 className="text-center font-titulo text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-roxo-escuro">
+          Ela à <em className="italic text-roxo-escuro">Imagem</em> Dele
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-relaxed text-muted">
           {EVENTO.temaVersiculo}
@@ -130,8 +130,8 @@ export default function HomePage() {
           <div className="mb-3 text-4xl">🎬</div>
           <h2 className="font-titulo text-2xl font-bold text-roxo">Conheça o Evento</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Reviva os melhores momentos do congresso do ano passado e conheça as palestrantes
-            confirmadas para {EVENTO.subtitulo}.
+            Reviva os melhores momentos do Congresso 2025 e conheça as palestrantes confirmadas
+            para {EVENTO.subtitulo}.
           </p>
           <Link
             href="/conheca-o-evento"

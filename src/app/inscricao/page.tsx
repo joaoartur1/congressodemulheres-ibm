@@ -1,50 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { Card, SectionTitle, Alert, PrimaryButton, Spinner } from "@/components/ui";
 import { formatCPF, formatWhats, isCpfValido } from "@/lib/utils";
-import { VALOR_BASE, VALOR_CAMISA, TAMANHOS_CAMISA } from "@/lib/config";
-import type { Database } from "@/lib/supabase/types";
-
-type Estoque = Database["public"]["Tables"]["estoque_camisas"]["Row"];
+import {
+  VALOR_BASE,
+  TAMANHOS_CAMISA,
+  MODELOS_CAMISA,
+  FAIXAS_ETARIAS_CAMISA,
+} from "@/lib/config";
+import type { FaixaEtariaCamisa } from "@/lib/supabase/types";
 
 export default function InscricaoPage() {
   const [supabase] = useState(() => createClient());
   const router = useRouter();
   const { show } = useToast();
 
-  const [estoque, setEstoque] = useState<Estoque[]>([]);
   const [form, setForm] = useState({
     nome: "",
     cpf: "",
     whatsapp: "",
     quer_camisa: false,
+    modelo_camisa: "",
     tamanho_camisa: "",
+    faixa_etaria_camisa: "" as FaixaEtariaCamisa | "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    supabase
-      .from("estoque_camisas")
-      .select("*")
-      .then(({ data }) => setEstoque(data ?? []));
-  }, [supabase]);
-
-  function disponivel(tam: string) {
-    const s = estoque.find((e) => e.tamanho === tam);
-    return s ? s.quantidade_total - s.quantidade_vendida : 0;
-  }
+  const modeloSelecionado = MODELOS_CAMISA.find((m) => m.id === form.modelo_camisa);
+  const valorCamisa =
+    modeloSelecionado && form.faixa_etaria_camisa
+      ? modeloSelecionado.precos[form.faixa_etaria_camisa]
+      : null;
 
   function validate() {
     const e: Record<string, string> = {};
     if (!form.nome.trim()) e.nome = "Nome obrigatório";
     if (!isCpfValido(form.cpf)) e.cpf = "CPF inválido (use 000.000.000-00)";
     if (form.whatsapp.replace(/\D/g, "").length < 10) e.whatsapp = "WhatsApp inválido";
-    if (form.quer_camisa && !form.tamanho_camisa) e.tamanho_camisa = "Escolha um tamanho";
+    if (form.quer_camisa) {
+      if (!form.modelo_camisa) e.modelo_camisa = "Escolha um modelo";
+      if (!form.tamanho_camisa) e.tamanho_camisa = "Escolha um tamanho";
+      if (!form.faixa_etaria_camisa) e.faixa_etaria_camisa = "Escolha a faixa etária";
+    }
     return e;
   }
 
@@ -63,7 +66,9 @@ export default function InscricaoPage() {
       p_cpf: form.cpf,
       p_whatsapp: form.whatsapp,
       p_quer_camisa: form.quer_camisa,
+      p_modelo_camisa: form.quer_camisa ? form.modelo_camisa : null,
       p_tamanho_camisa: form.quer_camisa ? form.tamanho_camisa : null,
+      p_faixa_etaria_camisa: form.quer_camisa ? (form.faixa_etaria_camisa || null) : null,
     });
 
     setLoading(false);
@@ -71,12 +76,6 @@ export default function InscricaoPage() {
     if (error) {
       if (error.code === "23505") {
         show("Este CPF já possui uma inscrição.", "error");
-      } else if (error.message?.toLowerCase().includes("esgotado")) {
-        show(`Tamanho ${form.tamanho_camisa} esgotado. Escolha outro tamanho.`, "error");
-        supabase
-          .from("estoque_camisas")
-          .select("*")
-          .then(({ data }) => setEstoque(data ?? []));
       } else {
         show(error.message || "Não foi possível concluir a inscrição.", "error");
       }
@@ -88,21 +87,13 @@ export default function InscricaoPage() {
   }
 
   return (
-    <div className="fade-in mx-auto max-w-[560px] px-6 py-16">
+    <div className="fade-in mx-auto max-w-[640px] px-6 py-16">
       <SectionTitle subtitle="Garanta sua vaga no Congresso de Mulheres 2026">
         Faça sua <em className="italic text-lilas">Inscrição</em>
       </SectionTitle>
 
       <Card>
-        <Alert type="info">
-          💜 Inscrição: <strong>R$ {VALOR_BASE},00</strong>
-          {VALOR_CAMISA > 0 && (
-            <>
-              {" "}
-              · Camisa adicional: <strong>+R$ {VALOR_CAMISA},00</strong>
-            </>
-          )}
-        </Alert>
+        <Alert type="info">💜 Inscrição: <strong>R$ {VALOR_BASE},00</strong></Alert>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -152,47 +143,121 @@ export default function InscricaoPage() {
               type="checkbox"
               checked={form.quer_camisa}
               onChange={(e) =>
-                setForm({ ...form, quer_camisa: e.target.checked, tamanho_camisa: "" })
+                setForm({
+                  ...form,
+                  quer_camisa: e.target.checked,
+                  modelo_camisa: "",
+                  tamanho_camisa: "",
+                  faixa_etaria_camisa: "",
+                })
               }
               className="h-[18px] w-[18px] accent-roxo"
             />
-            <span className="text-[0.88rem] font-medium text-texto">
-              Adquirir camisa oficial do congresso
-              {VALOR_CAMISA > 0 && <small className="text-roxo"> (+R$ {VALOR_CAMISA},00)</small>}
-            </span>
+            <span className="text-[0.88rem] font-medium text-texto">Quero a Camisa</span>
           </label>
 
           {form.quer_camisa && (
-            <div className="fade-in">
-              <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-                Tamanho da Camisa
-              </label>
-              <select
-                value={form.tamanho_camisa}
-                onChange={(e) => setForm({ ...form, tamanho_camisa: e.target.value })}
-                className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
-              >
-                <option value="">Selecione</option>
-                {TAMANHOS_CAMISA.map((tam) => {
-                  const disp = disponivel(tam);
-                  return (
-                    <option key={tam} value={tam} disabled={disp <= 0}>
-                      {tam} — {disp <= 0 ? "Esgotado" : `${disp} disponíveis`}
+            <div className="fade-in space-y-5">
+              <Alert type="info">
+                O pagamento da camisa é feito separado da inscrição, direto pro PIX da
+                responsável pelas camisas — você vai ver os dois PIX na tela seguinte.
+              </Alert>
+
+              <div>
+                <label className="mb-2 block text-[0.82rem] font-semibold text-roxo">
+                  Escolha o Modelo
+                </label>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {MODELOS_CAMISA.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setForm({ ...form, modelo_camisa: m.id })}
+                      className={`overflow-hidden rounded-xl border-2 text-left transition ${
+                        form.modelo_camisa === m.id
+                          ? "border-roxo shadow-[0_0_0_3px_rgba(100,87,155,0.2)]"
+                          : "border-lilas hover:border-roxo"
+                      }`}
+                    >
+                      <div className="relative aspect-square w-full">
+                        <Image src={m.imagem} alt={m.nome} fill className="object-cover" />
+                      </div>
+                      <div className="p-2">
+                        <div className="text-xs font-bold text-roxo">{m.nome}</div>
+                        <div className="text-[0.7rem] text-muted">{m.tipo}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {errors.modelo_camisa && (
+                  <div className="mt-1 text-[0.78rem] text-perigo">{errors.modelo_camisa}</div>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                  Faixa Etária
+                </label>
+                <select
+                  value={form.faixa_etaria_camisa}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      faixa_etaria_camisa: e.target.value as FaixaEtariaCamisa,
+                    })
+                  }
+                  className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                >
+                  <option value="">Selecione</option>
+                  {FAIXAS_ETARIAS_CAMISA.map((f) => (
+                    <option key={f.valor} value={f.valor}>
+                      {f.label}
                     </option>
-                  );
-                })}
-              </select>
-              {errors.tamanho_camisa && (
-                <div className="mt-1 text-[0.78rem] text-perigo">{errors.tamanho_camisa}</div>
-              )}
+                  ))}
+                </select>
+                {errors.faixa_etaria_camisa && (
+                  <div className="mt-1 text-[0.78rem] text-perigo">
+                    {errors.faixa_etaria_camisa}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                  Tamanho
+                </label>
+                <select
+                  value={form.tamanho_camisa}
+                  onChange={(e) => setForm({ ...form, tamanho_camisa: e.target.value })}
+                  className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                >
+                  <option value="">Selecione</option>
+                  {TAMANHOS_CAMISA.map((tam) => (
+                    <option key={tam} value={tam}>
+                      {tam}
+                    </option>
+                  ))}
+                </select>
+                {errors.tamanho_camisa && (
+                  <div className="mt-1 text-[0.78rem] text-perigo">{errors.tamanho_camisa}</div>
+                )}
+              </div>
             </div>
           )}
 
-          <div className="flex items-center justify-between rounded-[10px] bg-creme px-4 py-3">
-            <span className="text-[0.85rem] text-muted">Total</span>
-            <strong className="font-titulo text-xl text-roxo">
-              R$ {VALOR_BASE + (form.quer_camisa ? VALOR_CAMISA : 0)},00
-            </strong>
+          <div className="space-y-1.5 rounded-[10px] bg-creme px-4 py-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.85rem] text-muted">Inscrição</span>
+              <strong className="font-titulo text-lg text-roxo">R$ {VALOR_BASE},00</strong>
+            </div>
+            {form.quer_camisa && valorCamisa !== null && (
+              <div className="flex items-center justify-between">
+                <span className="text-[0.85rem] text-muted">
+                  Camisa ({modeloSelecionado?.nome})
+                </span>
+                <strong className="font-titulo text-lg text-roxo">R$ {valorCamisa},00</strong>
+              </div>
+            )}
           </div>
 
           <PrimaryButton type="submit" disabled={loading} className="w-full">

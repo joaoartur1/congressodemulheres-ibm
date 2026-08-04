@@ -3,7 +3,8 @@
 //   npx supabase gen types typescript --project-id <seu-project-id> > src/lib/supabase/types.ts
 
 export type StatusPagamento = "Pendente" | "Confirmado";
-export type Role = "tesouraria" | "recepcao";
+export type Role = "tesouraria" | "recepcao" | "camisas";
+export type FaixaEtariaCamisa = "ate_11" | "12_mais";
 
 export interface Database {
   public: {
@@ -35,8 +36,12 @@ export interface Database {
           whatsapp: string;
           quer_camisa: boolean;
           tamanho_camisa: string | null;
+          modelo_camisa: string | null;
+          faixa_etaria_camisa: FaixaEtariaCamisa | null;
           valor: number;
+          valor_camisa: number | null;
           status_pagamento: StatusPagamento;
+          status_pagamento_camisa: StatusPagamento | null;
           status_presenca: boolean;
           created_at: string;
         };
@@ -47,8 +52,12 @@ export interface Database {
           whatsapp: string;
           quer_camisa?: boolean;
           tamanho_camisa?: string | null;
+          modelo_camisa?: string | null;
+          faixa_etaria_camisa?: FaixaEtariaCamisa | null;
           valor: number;
+          valor_camisa?: number | null;
           status_pagamento?: StatusPagamento;
+          status_pagamento_camisa?: StatusPagamento | null;
           status_presenca?: boolean;
           created_at?: string;
         };
@@ -95,6 +104,10 @@ export interface Database {
           nome: string;
           foto_url: string | null;
           resumo: string;
+          igreja: string | null;
+          instagram: string | null;
+          cidade: string | null;
+          video_url: string | null;
           ordem: number;
         };
         Insert: {
@@ -102,6 +115,10 @@ export interface Database {
           nome: string;
           foto_url?: string | null;
           resumo: string;
+          igreja?: string | null;
+          instagram?: string | null;
+          cidade?: string | null;
+          video_url?: string | null;
           ordem?: number;
         };
         Update: Partial<Database["public"]["Tables"]["palestrantes"]["Insert"]>;
@@ -147,7 +164,9 @@ export interface Database {
           p_cpf: string;
           p_whatsapp: string;
           p_quer_camisa: boolean;
+          p_modelo_camisa: string | null;
           p_tamanho_camisa: string | null;
+          p_faixa_etaria_camisa: FaixaEtariaCamisa | null;
         };
         Returns: Database["public"]["Tables"]["inscricoes"]["Row"];
       };

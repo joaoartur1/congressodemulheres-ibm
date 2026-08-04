@@ -2,9 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
-const PROTECTED_ROUTES: Record<string, "tesouraria" | "recepcao"> = {
+const PROTECTED_ROUTES: Record<string, "tesouraria" | "recepcao" | "camisas"> = {
   "/gestao": "tesouraria",
   "/checkin": "recepcao",
+  "/gestao-camisas": "camisas",
 };
 
 export async function middleware(request: NextRequest) {
@@ -60,5 +61,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/gestao/:path*", "/checkin/:path*"],
+  matcher: ["/gestao/:path*", "/checkin/:path*", "/gestao-camisas/:path*"],
 };

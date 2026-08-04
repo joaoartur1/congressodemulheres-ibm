@@ -13,7 +13,7 @@ import {
   Spinner,
 } from "@/components/ui";
 import { formatCPF } from "@/lib/utils";
-import { PIX_CHAVE } from "@/lib/config";
+import { PIX_CHAVE, PIX_CAMISA_CHAVE, MODELOS_CAMISA } from "@/lib/config";
 import type { Database } from "@/lib/supabase/types";
 
 type Inscricao = Database["public"]["Tables"]["inscricoes"]["Row"];
@@ -107,10 +107,28 @@ export default function MeuPassePage() {
               </Alert>
               <InfoCard status="Pendente" id={result.id} nome={result.nome}>
                 <div className="mt-3 text-left text-sm leading-relaxed text-muted">
-                  Realize o pagamento via PIX para a chave <strong>{PIX_CHAVE}</strong> e informe
-                  à equipe para confirmação.
+                  Realize o pagamento da inscrição via PIX para a chave{" "}
+                  <strong>{PIX_CHAVE}</strong> e informe à equipe para confirmação.
                 </div>
               </InfoCard>
+              {result.quer_camisa && (
+                <div className="rounded-xl border border-lilas bg-white p-4 text-left text-sm">
+                  <div className="font-semibold text-roxo">
+                    👕 Camisa {MODELOS_CAMISA.find((m) => m.id === result.modelo_camisa)?.nome ??
+                      result.modelo_camisa}{" "}
+                    ({result.tamanho_camisa})
+                  </div>
+                  <div className="mt-1">
+                    <BadgeStatus status={result.status_pagamento_camisa ?? "Pendente"} />
+                  </div>
+                  {result.status_pagamento_camisa !== "Confirmado" && (
+                    <div className="mt-2 leading-relaxed text-muted">
+                      Pagamento da camisa (separado da inscrição) via PIX para a chave{" "}
+                      <strong>{PIX_CAMISA_CHAVE}</strong>.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -135,8 +153,16 @@ export default function MeuPassePage() {
                     <BadgeStatus status="Confirmado" />
                   </div>
                   {result.quer_camisa && (
-                    <div className="mt-2 rounded-lg bg-lilas/30 px-4 py-2 text-sm font-semibold text-roxo">
-                      👕 Camisa: {result.tamanho_camisa}
+                    <div className="mt-2 rounded-lg bg-lilas/30 px-4 py-2 text-sm text-roxo">
+                      <div className="font-semibold">
+                        👕{" "}
+                        {MODELOS_CAMISA.find((m) => m.id === result.modelo_camisa)?.nome ??
+                          result.modelo_camisa}{" "}
+                        ({result.tamanho_camisa})
+                      </div>
+                      <div className="mt-1">
+                        <BadgeStatus status={result.status_pagamento_camisa ?? "Pendente"} />
+                      </div>
                     </div>
                   )}
                   {result.status_presenca && (

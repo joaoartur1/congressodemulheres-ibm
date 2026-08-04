@@ -42,7 +42,13 @@ export function LoginModal({ onClose }: { onClose: () => void }) {
     }
 
     show(`Bem-vinda, ${perfil.nome}!`);
-    router.push(perfil.role === "tesouraria" ? "/gestao" : "/checkin");
+    const destino =
+      perfil.role === "tesouraria"
+        ? "/gestao"
+        : perfil.role === "camisas"
+          ? "/gestao-camisas"
+          : "/checkin";
+    router.push(destino);
     router.refresh();
   }
 

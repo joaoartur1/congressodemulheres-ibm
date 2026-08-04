@@ -12,18 +12,71 @@ export const EVENTO = {
   cidade: "Santa Inês - MA",
 } as const;
 
-// TODO: confirmar com a tesouraria (Fabrícia) antes de lançar. Valor da inscrição
-// confirmado em R$100; valor da camisa ainda não foi definido (mencionado como
-// pendente de confirmação numa segunda-feira).
+// Inscrição — TODO: confirmar valor com a tesouraria (Fabrícia) antes de lançar.
 export const VALOR_BASE = 100;
-export const VALOR_CAMISA = 0; // TODO: preencher valor real da camisa
 
-// TODO: preencher com a chave PIX real antes de lançar (ou mover para
-// NEXT_PUBLIC_PIX_CHAVE em variável de ambiente, se preferir não deixar no código).
+// TODO: preencher com a chave PIX real da inscrição (Fabrícia) antes de lançar
+// (ou mover para NEXT_PUBLIC_PIX_CHAVE em variável de ambiente).
 export const PIX_CHAVE = process.env.NEXT_PUBLIC_PIX_CHAVE || "CHAVE_PIX_A_DEFINIR";
 export const PIX_TITULAR = "Igreja Batista Missionária";
 
-export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
+// Camisas — por encomenda (sem estoque limitado), pagamento próprio via PIX
+// da Rayssa, separado do PIX da inscrição.
+export const PIX_CAMISA_CHAVE = "(98) 98312-9016";
+export const PIX_CAMISA_TITULAR = "Rayssa Nayara Barros de Sousa";
+export const PIX_CAMISA_BANCO = "Banco Inter";
+
+export const TAMANHOS_CAMISA = ["P", "M", "G", "Babylook"] as const;
+
+export const FAIXAS_ETARIAS_CAMISA = [
+  { valor: "ate_11", label: "11 anos ou menos" },
+  { valor: "12_mais", label: "12 anos ou mais" },
+] as const;
+
+export const MODELOS_CAMISA = [
+  {
+    id: "oficial",
+    nome: "Camisa Oficial",
+    tipo: "Oficial",
+    imagem: "/camisas/modelo-01-oficial.jpg",
+    precos: { ate_11: 65, "12_mais": 70 },
+  },
+  {
+    id: "escolhida",
+    nome: "Escolhida",
+    tipo: "Opcional",
+    imagem: "/camisas/modelo-02-escolhida.jpg",
+    precos: { ate_11: 60, "12_mais": 65 },
+  },
+  {
+    id: "virtuosa",
+    nome: "Virtuosa",
+    tipo: "Opcional",
+    imagem: "/camisas/modelo-03-virtuosa.jpg",
+    precos: { ate_11: 60, "12_mais": 65 },
+  },
+  {
+    id: "abencoada",
+    nome: "Abençoada",
+    tipo: "Opcional",
+    imagem: "/camisas/modelo-04-abencoada.jpg",
+    precos: { ate_11: 60, "12_mais": 65 },
+  },
+  {
+    id: "amada",
+    nome: "Amada",
+    tipo: "Opcional",
+    imagem: "/camisas/modelo-05-amada.jpg",
+    precos: { ate_11: 60, "12_mais": 65 },
+  },
+  {
+    id: "protegida",
+    nome: "Protegida",
+    tipo: "Opcional",
+    imagem: "/camisas/modelo-06-protegida.jpg",
+    precos: { ate_11: 60, "12_mais": 65 },
+  },
+] as const;
 
 // Usado para montar o mapa e os links de busca no Google Maps na aba "Local e
 // Hospedagem" — texto livre, o Google resolve a geolocalização (não temos o
@@ -39,3 +92,7 @@ export const PALETA_CORES = [
   { nome: "Creme", hex: "#F8EEE2" },
   { nome: "Dourado", hex: "#EBD8BB" },
 ] as const;
+
+// TODO: preencher com o link da playlist do congresso no Spotify quando
+// estiver pronta.
+export const SPOTIFY_PLAYLIST_URL = "";
