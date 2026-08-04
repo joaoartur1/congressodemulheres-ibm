@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const LIMITE = 5;
+const LIMITE = 30;
 const JANELA_MINUTOS = 60;
 
 export async function POST(req: NextRequest) {
