@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { Card, SectionTitle, Alert, PrimaryButton, Spinner } from "@/components/ui";
+import { Lightbox } from "@/components/Lightbox";
 import { formatCPF, formatWhats, isCpfValido } from "@/lib/utils";
 import {
   VALOR_BASE,
   TAMANHOS_CAMISA,
+  CORTES_CAMISA,
   MODELOS_CAMISA,
   FAIXAS_ETARIAS_CAMISA,
 } from "@/lib/config";
@@ -26,11 +28,13 @@ export default function InscricaoPage() {
     whatsapp: "",
     quer_camisa: false,
     modelo_camisa: "",
+    corte_camisa: "",
     tamanho_camisa: "",
     faixa_etaria_camisa: "" as FaixaEtariaCamisa | "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   const modeloSelecionado = MODELOS_CAMISA.find((m) => m.id === form.modelo_camisa);
   const valorCamisa =
@@ -45,6 +49,7 @@ export default function InscricaoPage() {
     if (form.whatsapp.replace(/\D/g, "").length < 10) e.whatsapp = "WhatsApp inválido";
     if (form.quer_camisa) {
       if (!form.modelo_camisa) e.modelo_camisa = "Escolha um modelo";
+      if (!form.corte_camisa) e.corte_camisa = "Escolha o corte";
       if (!form.tamanho_camisa) e.tamanho_camisa = "Escolha um tamanho";
       if (!form.faixa_etaria_camisa) e.faixa_etaria_camisa = "Escolha a faixa etária";
     }
@@ -61,13 +66,18 @@ export default function InscricaoPage() {
     setErrors({});
     setLoading(true);
 
+    const tamanhoCompleto =
+      form.corte_camisa === "Babylook"
+        ? `${form.tamanho_camisa} Babylook`
+        : form.tamanho_camisa;
+
     const { data, error } = await supabase.rpc("criar_inscricao", {
       p_nome: form.nome,
       p_cpf: form.cpf,
       p_whatsapp: form.whatsapp,
       p_quer_camisa: form.quer_camisa,
       p_modelo_camisa: form.quer_camisa ? form.modelo_camisa : null,
-      p_tamanho_camisa: form.quer_camisa ? form.tamanho_camisa : null,
+      p_tamanho_camisa: form.quer_camisa ? tamanhoCompleto : null,
       p_faixa_etaria_camisa: form.quer_camisa ? (form.faixa_etaria_camisa || null) : null,
     });
 
@@ -147,6 +157,7 @@ export default function InscricaoPage() {
                   ...form,
                   quer_camisa: e.target.checked,
                   modelo_camisa: "",
+                  corte_camisa: "",
                   tamanho_camisa: "",
                   faixa_etaria_camisa: "",
                 })
@@ -165,7 +176,8 @@ export default function InscricaoPage() {
 
               <div>
                 <label className="mb-2 block text-[0.82rem] font-semibold text-roxo">
-                  Escolha o Modelo
+                  Escolha o Modelo{" "}
+                  <span className="font-normal text-muted">(toque na lupa pra ampliar)</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {MODELOS_CAMISA.map((m) => (
@@ -181,6 +193,25 @@ export default function InscricaoPage() {
                     >
                       <div className="relative aspect-square w-full">
                         <Image src={m.imagem} alt={m.nome} fill className="object-cover" />
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Ampliar imagem — ${m.nome}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLightbox({ src: m.imagem, alt: m.nome });
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setLightbox({ src: m.imagem, alt: m.nome });
+                            }
+                          }}
+                          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-roxo-escuro/60 text-sm text-white backdrop-blur transition hover:bg-roxo-escuro/80"
+                        >
+                          🔍
+                        </span>
                       </div>
                       <div className="p-2">
                         <div className="text-xs font-bold text-roxo">{m.nome}</div>
@@ -196,7 +227,7 @@ export default function InscricaoPage() {
 
               <div>
                 <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-                  Faixa Etária
+                  Faixa Etária <span className="font-normal text-muted">(define o valor)</span>
                 </label>
                 <select
                   value={form.faixa_etaria_camisa}
@@ -222,25 +253,50 @@ export default function InscricaoPage() {
                 )}
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-                  Tamanho
-                </label>
-                <select
-                  value={form.tamanho_camisa}
-                  onChange={(e) => setForm({ ...form, tamanho_camisa: e.target.value })}
-                  className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
-                >
-                  <option value="">Selecione</option>
-                  {TAMANHOS_CAMISA.map((tam) => (
-                    <option key={tam} value={tam}>
-                      {tam}
-                    </option>
-                  ))}
-                </select>
-                {errors.tamanho_camisa && (
-                  <div className="mt-1 text-[0.78rem] text-perigo">{errors.tamanho_camisa}</div>
-                )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                    Corte
+                  </label>
+                  <select
+                    value={form.corte_camisa}
+                    onChange={(e) => setForm({ ...form, corte_camisa: e.target.value })}
+                    className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                  >
+                    <option value="">Selecione</option>
+                    {CORTES_CAMISA.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.corte_camisa && (
+                    <div className="mt-1 text-[0.78rem] text-perigo">{errors.corte_camisa}</div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                    Tamanho
+                  </label>
+                  <select
+                    value={form.tamanho_camisa}
+                    onChange={(e) => setForm({ ...form, tamanho_camisa: e.target.value })}
+                    className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                  >
+                    <option value="">Selecione</option>
+                    {TAMANHOS_CAMISA.map((tam) => (
+                      <option key={tam} value={tam}>
+                        {tam}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.tamanho_camisa && (
+                    <div className="mt-1 text-[0.78rem] text-perigo">
+                      {errors.tamanho_camisa}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -265,6 +321,10 @@ export default function InscricaoPage() {
           </PrimaryButton>
         </form>
       </Card>
+
+      {lightbox && (
+        <Lightbox src={lightbox.src} alt={lightbox.alt} onClose={() => setLightbox(null)} />
+      )}
     </div>
   );
 }

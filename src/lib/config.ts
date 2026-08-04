@@ -25,7 +25,8 @@ export const PIX_CAMISA_CHAVE = "(98) 98312-9016";
 export const PIX_CAMISA_TITULAR = "Rayssa Nayara Barros de Sousa";
 export const PIX_CAMISA_BANCO = "Banco Inter";
 
-export const TAMANHOS_CAMISA = ["P", "M", "G", "Babylook"] as const;
+export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
+export const CORTES_CAMISA = ["Normal", "Babylook"] as const;
 
 export const FAIXAS_ETARIAS_CAMISA = [
   { valor: "ate_11", label: "11 anos ou menos" },
