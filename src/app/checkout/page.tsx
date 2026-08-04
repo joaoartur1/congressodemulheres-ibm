@@ -8,9 +8,11 @@ import {
   PIX_CHAVE,
   PIX_TITULAR,
   PIX_BANCO,
+  WHATSAPP_FABRICIA,
   PIX_CAMISA_CHAVE,
   PIX_CAMISA_TITULAR,
   PIX_CAMISA_BANCO,
+  WHATSAPP_RAYSSA,
   MODELOS_CAMISA,
   EVENTO,
 } from "@/lib/config";
@@ -85,15 +87,17 @@ export default function CheckoutPage() {
   if (!data) return null;
 
   const modelo = MODELOS_CAMISA.find((m) => m.id === data.modelo_camisa);
+  const temCamisa = data.quer_camisa && data.valor_camisa != null;
 
-  const msg = encodeURIComponent(
-    `Olá! Fiz minha inscrição no ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${data.id}\n💰 Inscrição: R$ ${data.valor},00${
-      data.quer_camisa && data.valor_camisa
-        ? `\n👕 Camisa (${modelo?.nome ?? data.modelo_camisa}): R$ ${data.valor_camisa},00`
-        : ""
-    }\nAguardando confirmação de pagamento. 💜`
+  const msgInscricao = encodeURIComponent(
+    `Olá, Fabrícia! Fiz o PIX da minha inscrição no ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${data.id}\n👤 Nome: ${data.nome}\n💰 Valor: R$ ${data.valor},00\nSegue o comprovante. 💜`
   );
-  const whatsLink = `https://wa.me/55${data.whatsapp}?text=${msg}`;
+  const whatsLinkInscricao = `https://wa.me/${WHATSAPP_FABRICIA}?text=${msgInscricao}`;
+
+  const msgCamisa = encodeURIComponent(
+    `Olá, Rayssa! Fiz o PIX da minha camisa do ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${data.id}\n👤 Nome: ${data.nome}\n👕 Camisa (${modelo?.nome ?? data.modelo_camisa}): R$ ${data.valor_camisa},00\nSegue o comprovante. 💜`
+  );
+  const whatsLinkCamisa = `https://wa.me/${WHATSAPP_RAYSSA}?text=${msgCamisa}`;
 
   return (
     <div className="fade-in mx-auto max-w-[520px] px-6 py-16">
@@ -133,16 +137,24 @@ export default function CheckoutPage() {
           />
         )}
 
-        <a href={whatsLink} target="_blank" rel="noreferrer">
+        <a href={whatsLinkInscricao} target="_blank" rel="noreferrer">
           <button className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 text-[0.9rem] font-bold text-white transition hover:bg-[#1DA851]">
-            📱 Confirmar via WhatsApp
+            📱 Confirmar Inscrição (Fabrícia)
           </button>
         </a>
+
+        {temCamisa && (
+          <a href={whatsLinkCamisa} target="_blank" rel="noreferrer">
+            <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 text-[0.9rem] font-bold text-white transition hover:bg-[#1DA851]">
+              📱 Confirmar Camisa (Rayssa)
+            </button>
+          </a>
+        )}
 
         <p className="mt-4 text-[0.75rem] leading-relaxed text-muted">
           Após o pagamento, guarde o ID do pedido. Use-o na aba <strong>Meu Passe</strong> após a
           confirmação para acessar seu QR Code.
-          {data.quer_camisa && " O pagamento da camisa é confirmado separado do da inscrição."}
+          {temCamisa && " O pagamento da camisa é confirmado separado do da inscrição."}
         </p>
       </Card>
     </div>

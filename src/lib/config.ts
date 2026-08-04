@@ -18,12 +18,16 @@ export const VALOR_BASE = 100;
 export const PIX_CHAVE = process.env.NEXT_PUBLIC_PIX_CHAVE || "98981915231";
 export const PIX_TITULAR = "Fabrícia Lopes Moraes";
 export const PIX_BANCO = "Banco do Brasil";
+// WhatsApp da Fabrícia (tesouraria) — recebe a confirmação do PIX da inscrição.
+export const WHATSAPP_FABRICIA = "5598981915231";
 
 // Camisas — por encomenda (sem estoque limitado), pagamento próprio via PIX
 // da Rayssa, separado do PIX da inscrição.
 export const PIX_CAMISA_CHAVE = "(98) 98312-9016";
 export const PIX_CAMISA_TITULAR = "Rayssa Nayara Barros de Sousa";
 export const PIX_CAMISA_BANCO = "Banco Inter";
+// WhatsApp da Rayssa — recebe a confirmação do PIX da camisa.
+export const WHATSAPP_RAYSSA = "5598983129016";
 
 export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
 export const CORTES_CAMISA = ["Normal", "Babylook"] as const;
