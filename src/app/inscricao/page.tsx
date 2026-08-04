@@ -181,43 +181,36 @@ export default function InscricaoPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {MODELOS_CAMISA.map((m) => (
-                    <button
+                    <div
                       key={m.id}
-                      type="button"
-                      onClick={() => setForm({ ...form, modelo_camisa: m.id })}
-                      className={`overflow-hidden rounded-xl border-2 text-left transition ${
+                      className={`relative overflow-hidden rounded-xl border-2 transition ${
                         form.modelo_camisa === m.id
                           ? "border-roxo shadow-[0_0_0_3px_rgba(100,87,155,0.2)]"
                           : "border-lilas hover:border-roxo"
                       }`}
                     >
-                      <div className="relative aspect-square w-full">
-                        <Image src={m.imagem} alt={m.nome} fill className="object-cover" />
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`Ampliar imagem — ${m.nome}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setLightbox({ src: m.imagem, alt: m.nome });
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              setLightbox({ src: m.imagem, alt: m.nome });
-                            }
-                          }}
-                          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-roxo-escuro/60 text-sm text-white backdrop-blur transition hover:bg-roxo-escuro/80"
-                        >
-                          🔍
-                        </span>
-                      </div>
-                      <div className="p-2">
-                        <div className="text-xs font-bold text-roxo">{m.nome}</div>
-                        <div className="text-[0.7rem] text-muted">{m.tipo}</div>
-                      </div>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, modelo_camisa: m.id })}
+                        className="block w-full text-left"
+                      >
+                        <div className="relative aspect-square w-full">
+                          <Image src={m.imagem} alt={m.nome} fill className="object-cover" />
+                        </div>
+                        <div className="p-2">
+                          <div className="text-xs font-bold text-roxo">{m.nome}</div>
+                          <div className="text-[0.7rem] text-muted">{m.tipo}</div>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Ampliar imagem — ${m.nome}`}
+                        onClick={() => setLightbox({ src: m.imagem, alt: m.nome })}
+                        className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-roxo-escuro/60 text-sm text-white backdrop-blur transition hover:bg-roxo-escuro/80"
+                      >
+                        🔍
+                      </button>
+                    </div>
                   ))}
                 </div>
                 {errors.modelo_camisa && (
