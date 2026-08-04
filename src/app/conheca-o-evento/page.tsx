@@ -6,6 +6,7 @@ import { EVENTO, SPOTIFY_PLAYLIST_URL } from "@/lib/config";
 const VIDEOS_EVENTO_2025 = [
   { src: "/videos-evento/resumo-1.mp4", poster: "/videos-evento/resumo-1-poster.jpg" },
   { src: "/videos-evento/resumo-2.mp4", poster: "/videos-evento/resumo-2-poster.jpg" },
+  { src: "/videos-evento/resumo-3.mp4", poster: "/videos-evento/resumo-3-poster.jpg" },
 ];
 
 const FOTOS_EVENTO_2025 = [
@@ -44,81 +45,7 @@ export default async function ConhecaOEventoPage() {
         Conheça o <em className="italic text-lilas">Evento</em>
       </SectionTitle>
 
-      <div className="mx-auto grid max-w-[900px] grid-cols-1 gap-6 sm:grid-cols-2">
-        {VIDEOS_EVENTO_2025.map((v, i) => (
-          <div
-            key={v.src}
-            className="aspect-[9/16] overflow-hidden rounded-2xl border border-lilas bg-black shadow-[0_8px_40px_rgba(100,87,155,0.15)]"
-          >
-            <video
-              src={v.src}
-              poster={v.poster}
-              controls
-              preload="metadata"
-              className="h-full w-full"
-              aria-label={`Vídeo resumo ${i + 1} — ${EVENTO.subtitulo}`}
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-16">
-        <h2 className="text-center font-titulo text-2xl font-bold text-roxo">
-          Fotos do Congresso 2025
-        </h2>
-        <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-          {FOTOS_EVENTO_2025.map((src) => (
-            <a
-              key={src}
-              href={src}
-              target="_blank"
-              rel="noreferrer"
-              className="relative block aspect-[3/4] overflow-hidden rounded-xl border border-lilas shadow-[0_2px_10px_rgba(100,87,155,0.08)] transition hover:opacity-90"
-            >
-              <Image
-                src={src}
-                alt={`Foto do Congresso 2025 — ${EVENTO.subtitulo.replace("2026", "")}`}
-                fill
-                sizes="(max-width: 640px) 50vw, 33vw"
-                className="object-cover"
-              />
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-16">
-        <h2 className="text-center font-titulo text-2xl font-bold text-roxo">
-          Playlist do Congresso
-        </h2>
-        <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
-
-        {spotifyEmbed ? (
-          <div className="mx-auto max-w-[480px] overflow-hidden rounded-2xl border border-lilas shadow-[0_8px_40px_rgba(100,87,155,0.15)]">
-            <iframe
-              src={spotifyEmbed}
-              title={`Playlist do ${EVENTO.subtitulo} no Spotify`}
-              width="100%"
-              height="352"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-              className="block"
-            />
-          </div>
-        ) : (
-          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-lilas bg-white p-8 text-center">
-            <div className="mb-2 text-3xl">🎵</div>
-            <p className="font-titulo text-lg font-semibold text-roxo">Playlist em breve</p>
-            <p className="mt-2 text-sm text-muted">
-              A playlist do congresso no Spotify aparecerá aqui em breve.
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-16">
+      <div>
         <h2 className="text-center font-titulo text-2xl font-bold text-roxo">Palestrantes</h2>
         <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
 
@@ -176,11 +103,92 @@ export default async function ConhecaOEventoPage() {
                     src={p.video_url}
                     controls
                     preload="metadata"
-                    className="mx-auto mt-3 aspect-[9/16] w-full max-w-[180px] rounded-xl border border-lilas"
+                    className="mx-auto mt-3 aspect-[9/16] w-full max-w-[240px] rounded-xl border border-lilas"
                   />
                 )}
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-16">
+        <h2 className="text-center font-titulo text-2xl font-bold text-roxo">
+          Vídeos do Congresso 2025
+        </h2>
+        <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
+
+        <div className="mx-auto grid max-w-[1000px] grid-cols-1 gap-6 sm:grid-cols-3">
+          {VIDEOS_EVENTO_2025.map((v, i) => (
+            <div
+              key={v.src}
+              className="aspect-[9/16] overflow-hidden rounded-2xl border border-lilas bg-black shadow-[0_8px_40px_rgba(100,87,155,0.15)]"
+            >
+              <video
+                src={v.src}
+                poster={v.poster}
+                controls
+                preload="metadata"
+                className="h-full w-full"
+                aria-label={`Vídeo ${i + 1} — ${EVENTO.subtitulo}`}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-16">
+        <h2 className="text-center font-titulo text-2xl font-bold text-roxo">
+          Fotos do Congresso 2025
+        </h2>
+        <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {FOTOS_EVENTO_2025.map((src) => (
+            <a
+              key={src}
+              href={src}
+              target="_blank"
+              rel="noreferrer"
+              className="relative block aspect-[3/4] overflow-hidden rounded-xl border border-lilas shadow-[0_2px_10px_rgba(100,87,155,0.08)] transition hover:opacity-90"
+            >
+              <Image
+                src={src}
+                alt={`Foto do Congresso 2025 — ${EVENTO.subtitulo.replace("2026", "")}`}
+                fill
+                sizes="(max-width: 640px) 50vw, 33vw"
+                className="object-cover"
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-16">
+        <h2 className="text-center font-titulo text-2xl font-bold text-roxo">
+          Playlist do Congresso
+        </h2>
+        <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
+
+        {spotifyEmbed ? (
+          <div className="mx-auto max-w-[480px] overflow-hidden rounded-2xl border border-lilas shadow-[0_8px_40px_rgba(100,87,155,0.15)]">
+            <iframe
+              src={spotifyEmbed}
+              title={`Playlist do ${EVENTO.subtitulo} no Spotify`}
+              width="100%"
+              height="352"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="block"
+            />
+          </div>
+        ) : (
+          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-lilas bg-white p-8 text-center">
+            <div className="mb-2 text-3xl">🎵</div>
+            <p className="font-titulo text-lg font-semibold text-roxo">Playlist em breve</p>
+            <p className="mt-2 text-sm text-muted">
+              A playlist do congresso no Spotify aparecerá aqui em breve.
+            </p>
           </div>
         )}
       </div>

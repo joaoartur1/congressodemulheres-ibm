@@ -3,6 +3,7 @@ import Image from "next/image";
 import { EVENTO } from "@/lib/config";
 import { ShareInviteButton } from "@/components/ShareInviteButton";
 import { Countdown } from "@/components/Countdown";
+import { createClient } from "@/lib/supabase/server";
 
 const ACESSO_RAPIDO = [
   {
@@ -48,7 +49,17 @@ const DESTAQUES = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: palestrantes } = await supabase
+    .from("palestrantes")
+    .select("nome, video_url")
+    .not("video_url", "is", null)
+    .order("ordem", { ascending: true })
+    .limit(1);
+  const videoDestaque = palestrantes?.[0];
+  const posterDestaque = "/palestrantes/alessandra-machado-poster.jpg";
+
   return (
     <>
       <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-gradient-to-br from-roxo-escuro via-roxo to-lilas px-6 py-16 text-center">
@@ -126,19 +137,35 @@ export default function HomePage() {
       </div>
 
       <div className="fade-in bg-lilas/15 px-6 py-16">
-        <div className="mx-auto flex max-w-[600px] flex-col items-center text-center">
-          <div className="mb-3 text-4xl">🎬</div>
-          <h2 className="font-titulo text-2xl font-bold text-roxo">Conheça o Evento</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted">
-            Reviva os melhores momentos do Congresso 2025 e conheça as palestrantes confirmadas
-            para {EVENTO.subtitulo}.
-          </p>
-          <Link
-            href="/conheca-o-evento"
-            className="mt-5 inline-block rounded-full border-2 border-roxo px-6 py-2.5 text-sm font-semibold text-roxo transition hover:bg-roxo hover:text-white"
-          >
-            Ver vídeo e palestrantes ✦
-          </Link>
+        <div className="mx-auto flex max-w-[1100px] flex-col items-center gap-6 sm:flex-row sm:justify-center">
+          {videoDestaque && (
+            <Link
+              href="/conheca-o-evento"
+              className="group relative block aspect-[9/16] w-[180px] shrink-0 overflow-hidden rounded-2xl border border-lilas shadow-[0_8px_40px_rgba(100,87,155,0.25)] sm:w-[200px]"
+            >
+              <Image src={posterDestaque} alt={videoDestaque.nome} fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center bg-roxo-escuro/20 transition group-hover:bg-roxo-escuro/35">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-xl text-roxo">
+                  ▶
+                </span>
+              </div>
+            </Link>
+          )}
+          <div className="max-w-sm text-center sm:text-left">
+            <div className="mb-2 text-3xl">🎬</div>
+            <h2 className="font-titulo text-2xl font-bold text-roxo">Conheça o Evento</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Reviva os melhores momentos do Congresso 2025
+              {videoDestaque ? ` com ${videoDestaque.nome}` : ""} e conheça as palestrantes
+              confirmadas para {EVENTO.subtitulo}.
+            </p>
+            <Link
+              href="/conheca-o-evento"
+              className="mt-5 inline-block rounded-full border-2 border-roxo px-6 py-2.5 text-sm font-semibold text-roxo transition hover:bg-roxo hover:text-white"
+            >
+              Ver vídeos e palestrantes ✦
+            </Link>
+          </div>
         </div>
       </div>
 
