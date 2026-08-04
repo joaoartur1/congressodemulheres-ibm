@@ -55,9 +55,10 @@ export default function HomePage() {
         <Image
           src="/brand/logo_arco.png"
           alt=""
-          fill
+          width={800}
+          height={800}
           priority
-          className="pointer-events-none object-contain opacity-15"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-auto w-[150%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-15 sm:w-[95%] sm:max-w-[1100px]"
         />
         <div className="pointer-events-none absolute -right-24 -top-24 h-[300px] w-[300px] rounded-full border border-dourado/20" />
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-[200px] w-[200px] rounded-full border border-white/15" />
