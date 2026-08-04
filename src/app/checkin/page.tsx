@@ -33,13 +33,16 @@ export default function CheckinPage() {
 
       const { data, error } = await supabase.rpc("confirmar_presenca", { p_id: id.trim() });
 
-      buscandoRef.current = false;
-
       if (error || !data?.[0]) {
+        buscandoRef.current = false;
         setResultado(null);
         return;
       }
 
+      // Fica travado até a usuária clicar "Escanear Próxima" — se destravasse
+      // aqui, a câmera podia ler o mesmo QR Code de novo antes da tela de
+      // resultado aparecer, mandando uma segunda confirmação e mostrando
+      // "já utilizado" mesmo sendo a primeira leitura de verdade.
       setResultado({ ok: data[0].sucesso, inscricao: data[0].inscricao });
     },
     [supabase]
@@ -157,7 +160,10 @@ export default function CheckinPage() {
             </div>
           )}
           <button
-            onClick={() => setResultado(null)}
+            onClick={() => {
+              setResultado(null);
+              buscandoRef.current = false;
+            }}
             className="mt-4 w-full rounded-full bg-roxo py-3 text-sm font-bold text-white transition hover:bg-roxo-escuro"
           >
             Escanear Próxima
