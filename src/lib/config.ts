@@ -15,10 +15,9 @@ export const EVENTO = {
 // Inscrição — TODO: confirmar valor com a tesouraria (Fabrícia) antes de lançar.
 export const VALOR_BASE = 100;
 
-// TODO: preencher com a chave PIX real da inscrição (Fabrícia) antes de lançar
-// (ou mover para NEXT_PUBLIC_PIX_CHAVE em variável de ambiente).
-export const PIX_CHAVE = process.env.NEXT_PUBLIC_PIX_CHAVE || "CHAVE_PIX_A_DEFINIR";
-export const PIX_TITULAR = "Igreja Batista Missionária";
+export const PIX_CHAVE = process.env.NEXT_PUBLIC_PIX_CHAVE || "98981915231";
+export const PIX_TITULAR = "Fabrícia Lopes Moraes";
+export const PIX_BANCO = "Banco do Brasil";
 
 // Camisas — por encomenda (sem estoque limitado), pagamento próprio via PIX
 // da Rayssa, separado do PIX da inscrição.

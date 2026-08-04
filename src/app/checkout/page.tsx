@@ -7,6 +7,7 @@ import { Card } from "@/components/ui";
 import {
   PIX_CHAVE,
   PIX_TITULAR,
+  PIX_BANCO,
   PIX_CAMISA_CHAVE,
   PIX_CAMISA_TITULAR,
   PIX_CAMISA_BANCO,
@@ -118,6 +119,7 @@ export default function CheckoutPage() {
           titulo="Inscrição"
           chave={PIX_CHAVE}
           titular={PIX_TITULAR}
+          banco={PIX_BANCO}
           valor={data.valor}
         />
 
