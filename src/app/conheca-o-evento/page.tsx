@@ -3,10 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { SectionTitle } from "@/components/ui";
 import { EVENTO, SPOTIFY_PLAYLIST_URL } from "@/lib/config";
 
+// resumo-3 não entra aqui: é um vídeo da Apa. Alessandra Machado, palestrante
+// confirmada para 2026 — ela não esteve no Congresso 2025. Esse vídeo fica só
+// em destaque na tela inicial (ver src/app/page.tsx).
 const VIDEOS_EVENTO_2025 = [
   { src: "/videos-evento/resumo-1.mp4", poster: "/videos-evento/resumo-1-poster.jpg" },
   { src: "/videos-evento/resumo-2.mp4", poster: "/videos-evento/resumo-2-poster.jpg" },
-  { src: "/videos-evento/resumo-3.mp4", poster: "/videos-evento/resumo-3-poster.jpg" },
 ];
 
 const FOTOS_EVENTO_2025 = [
@@ -118,7 +120,7 @@ export default async function ConhecaOEventoPage() {
         </h2>
         <div className="mx-auto mt-2 mb-10 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
 
-        <div className="mx-auto grid max-w-[1000px] grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="mx-auto grid max-w-[700px] grid-cols-1 gap-6 sm:grid-cols-2">
           {VIDEOS_EVENTO_2025.map((v, i) => (
             <div
               key={v.src}

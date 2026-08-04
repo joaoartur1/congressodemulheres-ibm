@@ -57,8 +57,11 @@ export default async function HomePage() {
     .not("video_url", "is", null)
     .order("ordem", { ascending: true })
     .limit(1);
-  const videoDestaque = palestrantes?.[0];
-  const posterDestaque = "/palestrantes/alessandra-machado-poster.jpg";
+  const palestranteDestaque = palestrantes?.[0];
+  // Vídeo dela pregando (não é do Congresso 2025 — ela é palestrante
+  // confirmada para 2026, não esteve no evento do ano passado).
+  const videoDestaque = "/videos-evento/resumo-3.mp4";
+  const posterDestaque = "/videos-evento/resumo-3-poster.jpg";
 
   return (
     <>
@@ -138,26 +141,27 @@ export default async function HomePage() {
 
       <div className="fade-in bg-lilas/15 px-6 py-16">
         <div className="mx-auto flex max-w-[1100px] flex-col items-center gap-6 sm:flex-row sm:justify-center">
-          {videoDestaque && (
-            <Link
-              href="/conheca-o-evento"
-              className="group relative block aspect-[9/16] w-[180px] shrink-0 overflow-hidden rounded-2xl border border-lilas shadow-[0_8px_40px_rgba(100,87,155,0.25)] sm:w-[200px]"
-            >
-              <Image src={posterDestaque} alt={videoDestaque.nome} fill className="object-cover" />
-              <div className="absolute inset-0 flex items-center justify-center bg-roxo-escuro/20 transition group-hover:bg-roxo-escuro/35">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-xl text-roxo">
-                  ▶
-                </span>
-              </div>
-            </Link>
-          )}
+          <div className="aspect-[9/16] w-[180px] shrink-0 overflow-hidden rounded-2xl border border-lilas bg-black shadow-[0_8px_40px_rgba(100,87,155,0.25)] sm:w-[200px]">
+            <video
+              src={videoDestaque}
+              poster={posterDestaque}
+              controls
+              preload="metadata"
+              className="h-full w-full"
+              aria-label={
+                palestranteDestaque
+                  ? `${palestranteDestaque.nome} — palestrante confirmada`
+                  : "Palestrante confirmada"
+              }
+            />
+          </div>
           <div className="max-w-sm text-center sm:text-left">
             <div className="mb-2 text-3xl">🎬</div>
             <h2 className="font-titulo text-2xl font-bold text-roxo">Conheça o Evento</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               Reviva os melhores momentos do Congresso 2025
-              {videoDestaque ? ` com ${videoDestaque.nome}` : ""} e conheça as palestrantes
-              confirmadas para {EVENTO.subtitulo}.
+              {palestranteDestaque ? ` e conheça ${palestranteDestaque.nome}` : ""}, palestrante
+              confirmada para {EVENTO.subtitulo}.
             </p>
             <Link
               href="/conheca-o-evento"
