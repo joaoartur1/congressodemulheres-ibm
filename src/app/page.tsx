@@ -53,18 +53,12 @@ export default function HomePage() {
     <>
       <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-gradient-to-br from-roxo-escuro via-roxo to-lilas px-6 py-16 text-center">
         <Image
-          src="/brand/floral_canto_glicinia.png"
+          src="/brand/logo_arco.png"
           alt=""
-          width={218}
-          height={231}
-          className="pointer-events-none absolute -top-4 -left-4 w-[130px] opacity-70 sm:w-[170px]"
-        />
-        <Image
-          src="/brand/floral_canto_1.png"
-          alt=""
-          width={178}
-          height={461}
-          className="pointer-events-none absolute -bottom-6 -right-4 w-[100px] -scale-x-100 opacity-70 sm:w-[140px]"
+          width={800}
+          height={800}
+          priority
+          className="pointer-events-none absolute left-1/2 top-1/2 w-[130%] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-15 sm:w-[80%] sm:max-w-[720px]"
         />
         <div className="pointer-events-none absolute -right-24 -top-24 h-[300px] w-[300px] rounded-full border border-dourado/20" />
         <div className="pointer-events-none absolute -bottom-12 -left-12 h-[200px] w-[200px] rounded-full border border-white/15" />
