@@ -181,6 +181,10 @@ export interface Database {
           inscricao: Database["public"]["Tables"]["inscricoes"]["Row"];
         }[];
       };
+      checar_rate_limit: {
+        Args: { p_chave: string; p_limite: number; p_janela_minutos: number };
+        Returns: boolean;
+      };
     };
   };
 }

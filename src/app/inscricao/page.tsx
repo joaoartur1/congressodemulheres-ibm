@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { Card, SectionTitle, Alert, PrimaryButton, Spinner } from "@/components/ui";
 import { Lightbox } from "@/components/Lightbox";
@@ -18,7 +17,6 @@ import {
 import type { FaixaEtariaCamisa } from "@/lib/supabase/types";
 
 export default function InscricaoPage() {
-  const [supabase] = useState(() => createClient());
   const router = useRouter();
   const { show } = useToast();
 
@@ -71,28 +69,33 @@ export default function InscricaoPage() {
         ? `${form.tamanho_camisa} Babylook`
         : form.tamanho_camisa;
 
-    const { data, error } = await supabase.rpc("criar_inscricao", {
-      p_nome: form.nome,
-      p_cpf: form.cpf,
-      p_whatsapp: form.whatsapp,
-      p_quer_camisa: form.quer_camisa,
-      p_modelo_camisa: form.quer_camisa ? form.modelo_camisa : null,
-      p_tamanho_camisa: form.quer_camisa ? tamanhoCompleto : null,
-      p_faixa_etaria_camisa: form.quer_camisa ? (form.faixa_etaria_camisa || null) : null,
+    const res = await fetch("/api/criar-inscricao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        p_nome: form.nome,
+        p_cpf: form.cpf,
+        p_whatsapp: form.whatsapp,
+        p_quer_camisa: form.quer_camisa,
+        p_modelo_camisa: form.quer_camisa ? form.modelo_camisa : null,
+        p_tamanho_camisa: form.quer_camisa ? tamanhoCompleto : null,
+        p_faixa_etaria_camisa: form.quer_camisa ? (form.faixa_etaria_camisa || null) : null,
+      }),
     });
+    const json = await res.json();
 
     setLoading(false);
 
-    if (error) {
-      if (error.code === "23505") {
+    if (!res.ok) {
+      if (json.code === "23505") {
         show("Este CPF já possui uma inscrição.", "error");
       } else {
-        show(error.message || "Não foi possível concluir a inscrição.", "error");
+        show(json.error || "Não foi possível concluir a inscrição.", "error");
       }
       return;
     }
 
-    sessionStorage.setItem("checkout", JSON.stringify(data));
+    sessionStorage.setItem("checkout", JSON.stringify(json.data));
     router.push("/checkout");
   }
 

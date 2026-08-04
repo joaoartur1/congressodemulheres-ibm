@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { QRCodeDisplay } from "@/components/QRCodeDisplay";
 import {
   Card,
@@ -19,7 +18,6 @@ import type { Database } from "@/lib/supabase/types";
 type Inscricao = Database["public"]["Tables"]["inscricoes"]["Row"];
 
 export default function MeuPassePage() {
-  const [supabase] = useState(() => createClient());
   const [cpf, setCpf] = useState("");
   const [result, setResult] = useState<Inscricao | null>(null);
   const [searched, setSearched] = useState(false);
@@ -31,16 +29,21 @@ export default function MeuPassePage() {
     setLoading(true);
     setErro(null);
 
-    const { data, error } = await supabase.rpc("buscar_inscricao_por_cpf", { p_cpf: cpf });
+    const res = await fetch("/api/buscar-inscricao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cpf }),
+    });
+    const json = await res.json();
 
     setLoading(false);
 
-    if (error) {
-      setErro("Não conseguimos consultar agora. Verifique sua internet e tente de novo.");
+    if (!res.ok) {
+      setErro(json.error || "Não conseguimos consultar agora. Verifique sua internet e tente de novo.");
       return;
     }
 
-    setResult(data?.[0] ?? null);
+    setResult(json.data ?? null);
     setSearched(true);
   }
 
