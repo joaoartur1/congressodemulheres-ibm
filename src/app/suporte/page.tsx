@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { SectionTitle, Card } from "@/components/ui";
 import { WHATSAPP_JOAO, NOME_DEV } from "@/lib/config";
 
@@ -14,8 +15,8 @@ export default function SuportePage() {
       </SectionTitle>
 
       <Card className="mx-auto max-w-md text-center">
-        <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-2 border-lilas bg-creme text-4xl">
-          👨‍💻
+        <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-full border-2 border-lilas">
+          <Image src="/suporte/joao-artur.jpg" alt={NOME_DEV} fill className="object-cover" />
         </div>
         <div className="mt-4 font-titulo text-xl font-bold text-roxo">{NOME_DEV}</div>
         <p className="mt-1 text-sm text-muted">Desenvolvedor do site</p>
