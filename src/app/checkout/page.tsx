@@ -16,6 +16,7 @@ import {
   MODELOS_CAMISA,
   EVENTO,
 } from "@/lib/config";
+import { descricaoTamanhoCamisa } from "@/lib/utils";
 import type { PedidoResultado } from "@/lib/supabase/types";
 
 function PixBlock({
@@ -151,7 +152,7 @@ export default function CheckoutPage() {
                   <span className="text-muted">
                     👕 {c.nome_participante} —{" "}
                     {MODELOS_CAMISA.find((m) => m.id === c.modelo_camisa)?.nome ?? c.modelo_camisa}{" "}
-                    ({c.faixa_etaria_camisa === "ate_11" ? `${c.idade_crianca} anos` : c.tamanho_camisa})
+                    ({descricaoTamanhoCamisa(c)})
                   </span>
                   <strong className="text-roxo">R$ {c.valor},00</strong>
                 </div>

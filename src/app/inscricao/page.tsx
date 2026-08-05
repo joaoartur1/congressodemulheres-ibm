@@ -112,12 +112,7 @@ export default function InscricaoPage() {
       modelo_camisa: item.modelo_camisa,
       faixa_etaria_camisa: item.faixa_etaria_camisa,
       corte_camisa: item.faixa_etaria_camisa === "12_mais" ? item.corte_camisa : null,
-      tamanho_camisa:
-        item.faixa_etaria_camisa === "12_mais"
-          ? item.corte_camisa === "Babylook"
-            ? `${item.tamanho_camisa} Babylook`
-            : item.tamanho_camisa
-          : null,
+      tamanho_camisa: item.faixa_etaria_camisa === "12_mais" ? item.tamanho_camisa : null,
       idade_crianca: item.faixa_etaria_camisa === "ate_11" ? Number(item.idade_crianca) : null,
     }));
 

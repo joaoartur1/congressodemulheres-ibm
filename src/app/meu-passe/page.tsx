@@ -11,7 +11,7 @@ import {
   BadgeStatus,
   Spinner,
 } from "@/components/ui";
-import { formatCPF } from "@/lib/utils";
+import { formatCPF, descricaoTamanhoCamisa } from "@/lib/utils";
 import { PIX_CHAVE, PIX_CAMISA_CHAVE, MODELOS_CAMISA } from "@/lib/config";
 import type { PedidoResultado } from "@/lib/supabase/types";
 
@@ -132,7 +132,7 @@ export default function MeuPassePage() {
                 <div key={c.id} className="rounded-xl border border-lilas bg-white p-4 text-left text-sm">
                   <div className="font-semibold text-roxo">
                     👕 {c.nome_participante} — {nomeModelo(c.modelo_camisa)} (
-                    {c.faixa_etaria_camisa === "ate_11" ? `${c.idade_crianca} anos` : c.tamanho_camisa})
+                    {descricaoTamanhoCamisa(c)})
                   </div>
                   <div className="mt-1">
                     <BadgeStatus status={c.status_pagamento} />
@@ -172,7 +172,7 @@ export default function MeuPassePage() {
                     <div key={c.id} className="mt-2 rounded-lg bg-lilas/30 px-4 py-2 text-sm text-roxo">
                       <div className="font-semibold">
                         👕 {c.nome_participante} — {nomeModelo(c.modelo_camisa)} (
-                        {c.faixa_etaria_camisa === "ate_11" ? `${c.idade_crianca} anos` : c.tamanho_camisa})
+                        {descricaoTamanhoCamisa(c)})
                       </div>
                       <div className="mt-1">
                         <BadgeStatus status="Confirmado" />
@@ -204,7 +204,7 @@ export default function MeuPassePage() {
                   <div className="font-titulo text-lg font-bold text-roxo">{c.id}</div>
                   <div className="mt-1 font-semibold text-roxo">
                     👕 {c.nome_participante} — {nomeModelo(c.modelo_camisa)} (
-                    {c.faixa_etaria_camisa === "ate_11" ? `${c.idade_crianca} anos` : c.tamanho_camisa})
+                    {descricaoTamanhoCamisa(c)})
                   </div>
                   <div className="mt-1">
                     <BadgeStatus status={c.status_pagamento} />

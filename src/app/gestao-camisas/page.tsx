@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { BadgeStatus } from "@/components/ui";
-import { MODELOS_CAMISA, TAMANHOS_CAMISA } from "@/lib/config";
-import { formatMoeda, formatNumero } from "@/lib/utils";
+import { MODELOS_CAMISA, TAMANHOS_CAMISA, CORTES_CAMISA } from "@/lib/config";
+import { formatMoeda, formatNumero, descricaoTamanhoCamisa } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
 
 type PedidoCamisa = Database["public"]["Tables"]["pedidos_camisas"]["Row"];
@@ -65,10 +65,12 @@ export default function GestaoCamisasPage() {
   })).filter((m) => m.pedidos.length > 0);
 
   const porTamanho = [
-    ...TAMANHOS_CAMISA.map((t) => ({
-      label: t,
-      qtd: pedidos.filter((p) => p.tamanho_camisa === t).length,
-    })),
+    ...TAMANHOS_CAMISA.flatMap((t) =>
+      CORTES_CAMISA.map((c) => ({
+        label: c === "Normal" ? t : `${t} ${c}`,
+        qtd: pedidos.filter((p) => p.tamanho_camisa === t && p.corte_camisa === c).length,
+      }))
+    ),
     { label: "Infantil", qtd: infantis.length },
   ].filter((t) => t.qtd > 0);
 
@@ -169,7 +171,7 @@ export default function GestaoCamisasPage() {
               <div className="text-[0.75rem] text-muted">
                 {p.whatsapp_comprador} ·{" "}
                 {MODELOS_CAMISA.find((m) => m.id === p.modelo_camisa)?.nome ?? p.modelo_camisa} ·{" "}
-                {p.faixa_etaria_camisa === "ate_11" ? `${p.idade_crianca} anos` : p.tamanho_camisa} · R${" "}
+                {descricaoTamanhoCamisa(p)} · R${" "}
                 {formatNumero(p.valor)}
               </div>
             </div>

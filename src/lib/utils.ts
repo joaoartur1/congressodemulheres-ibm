@@ -20,3 +20,13 @@ export function formatMoeda(v: number) {
 export function formatNumero(v: number) {
   return v.toLocaleString("pt-BR");
 }
+
+export function descricaoTamanhoCamisa(c: {
+  faixa_etaria_camisa: string;
+  idade_crianca: number | null;
+  tamanho_camisa: string | null;
+  corte_camisa: string | null;
+}) {
+  if (c.faixa_etaria_camisa === "ate_11") return `${c.idade_crianca} anos`;
+  return c.corte_camisa === "Babylook" ? `${c.tamanho_camisa} Babylook` : (c.tamanho_camisa ?? "");
+}

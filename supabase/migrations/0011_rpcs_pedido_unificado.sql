@@ -5,6 +5,9 @@
 
 drop function if exists criar_inscricao(text, text, text, boolean, text, text, text);
 drop function if exists buscar_inscricao_por_cpf(text);
+-- confirmar_presenca ganha o campo "motivo" — muda o shape de retorno
+-- (OUT params), CREATE OR REPLACE não permite isso, precisa dropar antes.
+drop function if exists confirmar_presenca(text);
 
 -- ─── criar_pedido ───────────────────────────────────────────────────────
 create or replace function criar_pedido(
