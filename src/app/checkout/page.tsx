@@ -16,9 +16,7 @@ import {
   MODELOS_CAMISA,
   EVENTO,
 } from "@/lib/config";
-import type { Database } from "@/lib/supabase/types";
-
-type Inscricao = Database["public"]["Tables"]["inscricoes"]["Row"];
+import type { PedidoResultado } from "@/lib/supabase/types";
 
 function PixBlock({
   titulo,
@@ -71,7 +69,7 @@ function PixBlock({
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [data, setData] = useState<Inscricao | null>(null);
+  const [data, setData] = useState<PedidoResultado | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("checkout");
@@ -86,16 +84,25 @@ export default function CheckoutPage() {
 
   if (!data) return null;
 
-  const modelo = MODELOS_CAMISA.find((m) => m.id === data.modelo_camisa);
-  const temCamisa = data.quer_camisa && data.valor_camisa != null;
+  const { inscricao, camisas } = data;
+  const temCamisas = camisas.length > 0;
+  const totalCamisas = camisas.reduce((acc, c) => acc + Number(c.valor), 0);
+  const pedidoId = inscricao?.id ?? camisas[0]?.id;
 
-  const msgInscricao = encodeURIComponent(
-    `Olá, Fabrícia! Fiz o PIX da minha inscrição no ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${data.id}\n👤 Nome: ${data.nome}\n💰 Valor: R$ ${data.valor},00\nSegue o comprovante. 💜`
-  );
+  const msgInscricao = inscricao
+    ? encodeURIComponent(
+        `Olá, Fabrícia! Fiz o PIX da minha inscrição no ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${inscricao.id}\n👤 Nome: ${inscricao.nome}\n💰 Valor: R$ ${inscricao.valor},00\nSegue o comprovante. 💜`
+      )
+    : "";
   const whatsLinkInscricao = `https://wa.me/${WHATSAPP_FABRICIA}?text=${msgInscricao}`;
 
   const msgCamisa = encodeURIComponent(
-    `Olá, Rayssa! Fiz o PIX da minha camisa do ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${data.id}\n👤 Nome: ${data.nome}\n👕 Camisa (${modelo?.nome ?? data.modelo_camisa}): R$ ${data.valor_camisa},00\nSegue o comprovante. 💜`
+    `Olá, Rayssa! Fiz o PIX ${camisas.length > 1 ? "das minhas camisas" : "da minha camisa"} do ${EVENTO.subtitulo}.\n✦ ID do Pedido: ${pedidoId}\n${camisas
+      .map(
+        (c) =>
+          `👕 ${c.nome_participante} — ${MODELOS_CAMISA.find((m) => m.id === c.modelo_camisa)?.nome ?? c.modelo_camisa}: R$ ${c.valor},00`
+      )
+      .join("\n")}\nSegue o comprovante. 💜`
   );
   const whatsLinkCamisa = `https://wa.me/${WHATSAPP_RAYSSA}?text=${msgCamisa}`;
 
@@ -103,58 +110,78 @@ export default function CheckoutPage() {
     <div className="fade-in mx-auto max-w-[520px] px-6 py-16">
       <Card className="text-center">
         <div className="mb-2 text-5xl">🎉</div>
-        <h2 className="font-titulo text-2xl font-bold text-roxo">Inscrição Realizada!</h2>
+        <h2 className="font-titulo text-2xl font-bold text-roxo">Pedido Realizado!</h2>
         <p className="mb-6 mt-1 text-[0.85rem] text-muted">
-          Efetue o(s) pagamento(s) para confirmar sua vaga
+          Efetue o(s) pagamento(s) para confirmar
         </p>
 
         <div className="mb-5 rounded-2xl bg-creme p-4">
           <div className="text-[0.72rem] uppercase tracking-[0.1em] text-muted">
-            ID do Pedido
+            {inscricao ? "ID do Pedido" : "Código do Pedido de Camisa"}
           </div>
-          <div className="font-titulo text-4xl font-bold tracking-wide text-roxo">{data.id}</div>
-          <div className="text-[0.8rem] text-muted">{data.nome}</div>
+          <div className="font-titulo text-4xl font-bold tracking-wide text-roxo">{pedidoId}</div>
+          <div className="text-[0.8rem] text-muted">{inscricao?.nome ?? camisas[0]?.nome_comprador}</div>
           <span className="mt-1.5 inline-flex rounded-full bg-aviso-bg px-3 py-1 text-[0.72rem] font-bold text-aviso">
             ● Aguardando Pagamento
           </span>
         </div>
 
-        <PixBlock
-          titulo="Inscrição"
-          chave={PIX_CHAVE}
-          titular={PIX_TITULAR}
-          banco={PIX_BANCO}
-          valor={data.valor}
-        />
-
-        {data.quer_camisa && data.valor_camisa != null && (
+        {inscricao && (
           <PixBlock
-            titulo={`Camisa (${modelo?.nome ?? data.modelo_camisa})`}
-            chave={PIX_CAMISA_CHAVE}
-            titular={PIX_CAMISA_TITULAR}
-            banco={PIX_CAMISA_BANCO}
-            valor={data.valor_camisa}
+            titulo="Inscrição"
+            chave={PIX_CHAVE}
+            titular={PIX_TITULAR}
+            banco={PIX_BANCO}
+            valor={inscricao.valor}
           />
         )}
 
-        <a href={whatsLinkInscricao} target="_blank" rel="noreferrer">
-          <button className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 text-[0.9rem] font-bold text-white transition hover:bg-[#1DA851]">
-            📱 Confirmar Inscrição (Fabrícia)
-          </button>
-        </a>
+        {temCamisas && (
+          <>
+            <PixBlock
+              titulo={camisas.length > 1 ? `Camisas (${camisas.length})` : "Camisa"}
+              chave={PIX_CAMISA_CHAVE}
+              titular={PIX_CAMISA_TITULAR}
+              banco={PIX_CAMISA_BANCO}
+              valor={totalCamisas}
+            />
+            <div className="mb-4 space-y-1.5 rounded-[10px] bg-creme px-4 py-3 text-left">
+              {camisas.map((c) => (
+                <div key={c.id} className="flex items-center justify-between text-[0.8rem]">
+                  <span className="text-muted">
+                    👕 {c.nome_participante} —{" "}
+                    {MODELOS_CAMISA.find((m) => m.id === c.modelo_camisa)?.nome ?? c.modelo_camisa}{" "}
+                    ({c.faixa_etaria_camisa === "ate_11" ? `${c.idade_crianca} anos` : c.tamanho_camisa})
+                  </span>
+                  <strong className="text-roxo">R$ {c.valor},00</strong>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
-        {temCamisa && (
+        {inscricao && (
+          <a href={whatsLinkInscricao} target="_blank" rel="noreferrer">
+            <button className="flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 text-[0.9rem] font-bold text-white transition hover:bg-[#1DA851]">
+              📱 Confirmar Inscrição (Fabrícia)
+            </button>
+          </a>
+        )}
+
+        {temCamisas && (
           <a href={whatsLinkCamisa} target="_blank" rel="noreferrer">
             <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] py-3.5 text-[0.9rem] font-bold text-white transition hover:bg-[#1DA851]">
-              📱 Confirmar Camisa (Rayssa)
+              📱 Confirmar Camisa{camisas.length > 1 ? "s" : ""} (Rayssa)
             </button>
           </a>
         )}
 
         <p className="mt-4 text-[0.75rem] leading-relaxed text-muted">
-          Após o pagamento, guarde o ID do pedido. Use-o na aba <strong>Meu Passe</strong> após a
-          confirmação para acessar seu QR Code.
-          {temCamisa && " O pagamento da camisa é confirmado separado do da inscrição."}
+          Após o pagamento, guarde o código do pedido.
+          {inscricao
+            ? " Use-o na aba Meu Passe após a confirmação para acessar seu QR Code."
+            : " Use-o na aba Meu Passe para acompanhar o status."}
+          {inscricao && temCamisas && " O pagamento da camisa é confirmado separado do da inscrição."}
         </p>
       </Card>
     </div>

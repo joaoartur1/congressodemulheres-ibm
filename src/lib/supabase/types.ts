@@ -6,42 +6,27 @@ export type StatusPagamento = "Pendente" | "Confirmado";
 export type Role = "tesouraria" | "recepcao" | "camisas";
 export type FaixaEtariaCamisa = "ate_11" | "12_mais";
 
+export interface CamisaItemInput {
+  nome_participante?: string;
+  modelo_camisa: string;
+  faixa_etaria_camisa: FaixaEtariaCamisa;
+  corte_camisa?: string | null;
+  tamanho_camisa?: string | null;
+  idade_crianca?: number | null;
+}
+
 export interface Database {
   public: {
     Views: Record<string, never>;
     Tables: {
-      estoque_camisas: {
-        Row: {
-          tamanho: string;
-          quantidade_total: number;
-          quantidade_vendida: number;
-        };
-        Insert: {
-          tamanho: string;
-          quantidade_total: number;
-          quantidade_vendida?: number;
-        };
-        Update: {
-          tamanho?: string;
-          quantidade_total?: number;
-          quantidade_vendida?: number;
-        };
-        Relationships: [];
-      };
       inscricoes: {
         Row: {
           id: string;
           nome: string;
           cpf: string;
           whatsapp: string;
-          quer_camisa: boolean;
-          tamanho_camisa: string | null;
-          modelo_camisa: string | null;
-          faixa_etaria_camisa: FaixaEtariaCamisa | null;
           valor: number;
-          valor_camisa: number | null;
           status_pagamento: StatusPagamento;
-          status_pagamento_camisa: StatusPagamento | null;
           status_presenca: boolean;
           created_at: string;
         };
@@ -50,18 +35,48 @@ export interface Database {
           nome: string;
           cpf: string;
           whatsapp: string;
-          quer_camisa?: boolean;
-          tamanho_camisa?: string | null;
-          modelo_camisa?: string | null;
-          faixa_etaria_camisa?: FaixaEtariaCamisa | null;
           valor: number;
-          valor_camisa?: number | null;
           status_pagamento?: StatusPagamento;
-          status_pagamento_camisa?: StatusPagamento | null;
           status_presenca?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["inscricoes"]["Insert"]>;
+        Relationships: [];
+      };
+      pedidos_camisas: {
+        Row: {
+          id: string;
+          inscricao_id: string | null;
+          cpf_comprador: string;
+          nome_comprador: string;
+          whatsapp_comprador: string;
+          nome_participante: string;
+          modelo_camisa: string;
+          corte_camisa: string | null;
+          tamanho_camisa: string | null;
+          idade_crianca: number | null;
+          faixa_etaria_camisa: FaixaEtariaCamisa;
+          valor: number;
+          status_pagamento: StatusPagamento;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          inscricao_id?: string | null;
+          cpf_comprador: string;
+          nome_comprador: string;
+          whatsapp_comprador: string;
+          nome_participante: string;
+          modelo_camisa: string;
+          corte_camisa?: string | null;
+          tamanho_camisa?: string | null;
+          idade_crianca?: number | null;
+          faixa_etaria_camisa: FaixaEtariaCamisa;
+          valor: number;
+          status_pagamento?: StatusPagamento;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["pedidos_camisas"]["Insert"]>;
         Relationships: [];
       };
       perfis_equipe: {
@@ -158,26 +173,31 @@ export interface Database {
       };
     };
     Functions: {
-      criar_inscricao: {
+      criar_pedido: {
         Args: {
+          p_quer_inscricao: boolean;
           p_nome: string;
           p_cpf: string;
           p_whatsapp: string;
-          p_quer_camisa: boolean;
-          p_modelo_camisa: string | null;
-          p_tamanho_camisa: string | null;
-          p_faixa_etaria_camisa: FaixaEtariaCamisa | null;
+          p_camisas: CamisaItemInput[];
         };
-        Returns: Database["public"]["Tables"]["inscricoes"]["Row"];
+        Returns: {
+          inscricao: Database["public"]["Tables"]["inscricoes"]["Row"] | null;
+          camisas: Database["public"]["Tables"]["pedidos_camisas"]["Row"][];
+        };
       };
-      buscar_inscricao_por_cpf: {
+      buscar_pedido_por_cpf: {
         Args: { p_cpf: string };
-        Returns: Database["public"]["Tables"]["inscricoes"]["Row"][];
+        Returns: {
+          inscricao: Database["public"]["Tables"]["inscricoes"]["Row"] | null;
+          camisas: Database["public"]["Tables"]["pedidos_camisas"]["Row"][];
+        };
       };
       confirmar_presenca: {
         Args: { p_id: string };
         Returns: {
           sucesso: boolean;
+          motivo: "ok" | "ja_utilizado" | "pagamento_pendente" | "nao_encontrada";
           inscricao: Database["public"]["Tables"]["inscricoes"]["Row"];
         }[];
       };
@@ -188,3 +208,8 @@ export interface Database {
     };
   };
 }
+
+export type PedidoResultado = {
+  inscricao: Database["public"]["Tables"]["inscricoes"]["Row"] | null;
+  camisas: Database["public"]["Tables"]["pedidos_camisas"]["Row"][];
+};

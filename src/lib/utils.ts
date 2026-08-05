@@ -12,3 +12,11 @@ export function formatWhats(v: string) {
 export function isCpfValido(cpf: string) {
   return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
 }
+
+export function formatMoeda(v: number) {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0 });
+}
+
+export function formatNumero(v: number) {
+  return v.toLocaleString("pt-BR");
+}

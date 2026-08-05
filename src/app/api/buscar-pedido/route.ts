@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
 
   const { data: liberado } = await supabase.rpc("checar_rate_limit", {
-    p_chave: `busca_cpf:${ip}`,
+    p_chave: `buscar_pedido:${ip}`,
     p_limite: LIMITE,
     p_janela_minutos: JANELA_MINUTOS,
   });
@@ -26,10 +26,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { data, error } = await supabase.rpc("buscar_inscricao_por_cpf", { p_cpf: cpf });
+  const { data, error } = await supabase.rpc("buscar_pedido_por_cpf", { p_cpf: cpf });
   if (error) {
     return NextResponse.json({ error: "Não foi possível consultar agora." }, { status: 500 });
   }
 
-  return NextResponse.json({ data: data?.[0] ?? null });
+  return NextResponse.json({ data });
 }

@@ -7,7 +7,15 @@ import { PrimaryButton } from "@/components/ui";
 import type { Database } from "@/lib/supabase/types";
 
 type Inscricao = Database["public"]["Tables"]["inscricoes"]["Row"];
-type Resultado = { ok: boolean; inscricao: Inscricao };
+type Motivo = "ok" | "ja_utilizado" | "pagamento_pendente" | "nao_encontrada";
+type Resultado = { ok: boolean; motivo: Motivo; inscricao: Inscricao };
+
+const MENSAGEM_MOTIVO: Record<Motivo, string> = {
+  ok: "Entrada Confirmada!",
+  ja_utilizado: "QR Code já utilizado",
+  pagamento_pendente: "Pagamento pendente — não libera entrada",
+  nao_encontrada: "Inscrição não encontrada",
+};
 
 export default function CheckinPage() {
   const [supabase] = useState(() => createClient());
@@ -43,7 +51,7 @@ export default function CheckinPage() {
       // aqui, a câmera podia ler o mesmo QR Code de novo antes da tela de
       // resultado aparecer, mandando uma segunda confirmação e mostrando
       // "já utilizado" mesmo sendo a primeira leitura de verdade.
-      setResultado({ ok: data[0].sucesso, inscricao: data[0].inscricao });
+      setResultado({ ok: data[0].sucesso, motivo: data[0].motivo, inscricao: data[0].inscricao });
     },
     [supabase]
   );
@@ -148,17 +156,12 @@ export default function CheckinPage() {
         >
           <div className="text-4xl">{resultado.ok ? "✅" : "🚫"}</div>
           <h3 className="mt-2 font-titulo text-xl font-bold text-roxo">
-            {resultado.ok ? "Entrada Confirmada!" : "QR Code já utilizado"}
+            {MENSAGEM_MOTIVO[resultado.motivo]}
           </h3>
           <div className="mt-2 font-titulo text-2xl font-bold text-roxo">
             {resultado.inscricao.id}
           </div>
           <div className="text-[0.9rem] text-texto">{resultado.inscricao.nome}</div>
-          {resultado.inscricao.quer_camisa && (
-            <div className="mt-3 inline-block rounded-lg bg-roxo px-5 py-2.5 font-titulo text-lg font-bold tracking-wide text-dourado">
-              👕 {resultado.inscricao.tamanho_camisa}
-            </div>
-          )}
           <button
             onClick={() => {
               setResultado(null);

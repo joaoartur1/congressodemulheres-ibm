@@ -4,25 +4,25 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { BadgeStatus } from "@/components/ui";
-import { MODELOS_CAMISA } from "@/lib/config";
+import { MODELOS_CAMISA, TAMANHOS_CAMISA } from "@/lib/config";
+import { formatMoeda, formatNumero } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
 
-type Inscricao = Database["public"]["Tables"]["inscricoes"]["Row"];
+type PedidoCamisa = Database["public"]["Tables"]["pedidos_camisas"]["Row"];
 
 export default function GestaoCamisasPage() {
   const [supabase] = useState(() => createClient());
   const { show } = useToast();
-  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
+  const [pedidos, setPedidos] = useState<PedidoCamisa[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmando, setConfirmando] = useState<string | null>(null);
 
   const carregar = useCallback(async () => {
     const { data } = await supabase
-      .from("inscricoes")
+      .from("pedidos_camisas")
       .select("*")
-      .eq("quer_camisa", true)
       .order("created_at", { ascending: false });
-    setInscricoes(data ?? []);
+    setPedidos(data ?? []);
     setLoading(false);
   }, [supabase]);
 
@@ -32,7 +32,7 @@ export default function GestaoCamisasPage() {
 
     const channel = supabase
       .channel("gestao-camisas-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "inscricoes" }, carregar)
+      .on("postgres_changes", { event: "*", schema: "public", table: "pedidos_camisas" }, carregar)
       .subscribe();
 
     return () => {
@@ -43,8 +43,8 @@ export default function GestaoCamisasPage() {
   async function confirmarPagamento(id: string) {
     setConfirmando(id);
     const { error } = await supabase
-      .from("inscricoes")
-      .update({ status_pagamento_camisa: "Confirmado" })
+      .from("pedidos_camisas")
+      .update({ status_pagamento: "Confirmado" })
       .eq("id", id);
     setConfirmando(null);
     if (error) {
@@ -54,20 +54,30 @@ export default function GestaoCamisasPage() {
     show("Pagamento da camisa confirmado!");
   }
 
-  const pendentes = inscricoes.filter((i) => i.status_pagamento_camisa !== "Confirmado");
-  const confirmados = inscricoes.filter((i) => i.status_pagamento_camisa === "Confirmado");
-  const totalArrecadado = confirmados.reduce((acc, i) => acc + Number(i.valor_camisa ?? 0), 0);
+  const pendentes = pedidos.filter((p) => p.status_pagamento !== "Confirmado");
+  const confirmados = pedidos.filter((p) => p.status_pagamento === "Confirmado");
+  const infantis = pedidos.filter((p) => p.idade_crianca !== null);
+  const totalArrecadado = confirmados.reduce((acc, p) => acc + Number(p.valor), 0);
 
   const porModelo = MODELOS_CAMISA.map((m) => ({
     ...m,
-    pedidos: inscricoes.filter((i) => i.modelo_camisa === m.id),
+    pedidos: pedidos.filter((p) => p.modelo_camisa === m.id),
   })).filter((m) => m.pedidos.length > 0);
 
+  const porTamanho = [
+    ...TAMANHOS_CAMISA.map((t) => ({
+      label: t,
+      qtd: pedidos.filter((p) => p.tamanho_camisa === t).length,
+    })),
+    { label: "Infantil", qtd: infantis.length },
+  ].filter((t) => t.qtd > 0);
+
   const kpis = [
-    { label: "Total de Pedidos", value: inscricoes.length, icon: "👕", color: "text-roxo" },
-    { label: "Pagos", value: confirmados.length, icon: "✅", color: "text-sucesso" },
-    { label: "Pendentes", value: pendentes.length, icon: "⏳", color: "text-aviso" },
-    { label: "Arrecadado", value: `R$ ${totalArrecadado}`, icon: "💰", color: "text-lilas" },
+    { label: "Total de Pedidos", value: formatNumero(pedidos.length), icon: "👕", color: "text-roxo" },
+    { label: "Pagos", value: formatNumero(confirmados.length), icon: "✅", color: "text-sucesso" },
+    { label: "Pendentes", value: formatNumero(pendentes.length), icon: "⏳", color: "text-aviso" },
+    { label: "Infantis", value: formatNumero(infantis.length), icon: "🧒", color: "text-azul" },
+    { label: "Arrecadado", value: formatMoeda(totalArrecadado), icon: "💰", color: "text-lilas" },
   ];
 
   if (loading) {
@@ -87,14 +97,16 @@ export default function GestaoCamisasPage() {
         <div className="mx-auto mt-3 mb-8 h-[3px] w-[60px] rounded-full bg-gradient-to-r from-roxo to-dourado" />
       </div>
 
-      <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {kpis.map((k) => (
           <div
             key={k.label}
             className="rounded-2xl border border-lilas bg-white p-5 text-center shadow-[0_4px_20px_rgba(100,87,155,0.08)]"
           >
             <div className="text-2xl">{k.icon}</div>
-            <div className={`font-titulo text-2xl font-bold ${k.color}`}>{k.value}</div>
+            <div className={`font-titulo text-xl sm:text-2xl font-bold tabular-nums truncate ${k.color}`}>
+              {k.value}
+            </div>
             <div className="mt-0.5 text-[0.78rem] text-muted">{k.label}</div>
           </div>
         ))}
@@ -109,8 +121,8 @@ export default function GestaoCamisasPage() {
                 key={m.id}
                 className="rounded-xl border border-lilas bg-white p-3 text-center shadow-[0_2px_10px_rgba(100,87,155,0.06)]"
               >
-                <div className="font-titulo text-2xl font-bold text-roxo">
-                  {m.pedidos.length}
+                <div className="font-titulo text-2xl font-bold tabular-nums text-roxo">
+                  {formatNumero(m.pedidos.length)}
                 </div>
                 <div className="text-[0.75rem] text-muted">{m.nome}</div>
               </div>
@@ -119,33 +131,56 @@ export default function GestaoCamisasPage() {
         </>
       )}
 
+      {porTamanho.length > 0 && (
+        <>
+          <h3 className="mb-4 font-titulo text-xl font-bold text-roxo">Tamanhos de Camisas Pedidas</h3>
+          <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {porTamanho.map((t) => (
+              <div
+                key={t.label}
+                className="rounded-xl border border-lilas bg-white p-3 text-center shadow-[0_2px_10px_rgba(100,87,155,0.06)]"
+              >
+                <div className="font-titulo text-2xl font-bold tabular-nums text-roxo">
+                  {formatNumero(t.qtd)}
+                </div>
+                <div className="text-[0.75rem] text-muted">{t.label}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       <h3 className="mb-4 font-titulo text-xl font-bold text-roxo">Pedidos</h3>
       <div className="space-y-3">
-        {inscricoes.length === 0 && <p className="text-sm text-muted">Nenhum pedido ainda.</p>}
-        {inscricoes.map((i) => (
+        {pedidos.length === 0 && <p className="text-sm text-muted">Nenhum pedido ainda.</p>}
+        {pedidos.map((p) => (
           <div
-            key={i.id}
+            key={p.id}
             className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-lilas bg-white p-4 shadow-[0_2px_10px_rgba(100,87,155,0.07)]"
           >
             <div>
-              <div className="font-titulo text-lg font-bold text-roxo">{i.id}</div>
-              <div className="text-[0.88rem] text-texto">{i.nome}</div>
+              <div className="font-titulo text-lg font-bold text-roxo">{p.id}</div>
+              <div className="text-[0.88rem] text-texto">
+                {p.nome_participante}
+                {p.nome_participante !== p.nome_comprador && (
+                  <span className="text-muted"> (comprado por {p.nome_comprador})</span>
+                )}
+              </div>
               <div className="text-[0.75rem] text-muted">
-                {i.whatsapp} ·{" "}
-                {MODELOS_CAMISA.find((m) => m.id === i.modelo_camisa)?.nome ?? i.modelo_camisa} ·{" "}
-                {i.tamanho_camisa} ·{" "}
-                {i.faixa_etaria_camisa === "ate_11" ? "11 anos ou menos" : "12 anos ou mais"} · R${" "}
-                {i.valor_camisa}
+                {p.whatsapp_comprador} ·{" "}
+                {MODELOS_CAMISA.find((m) => m.id === p.modelo_camisa)?.nome ?? p.modelo_camisa} ·{" "}
+                {p.faixa_etaria_camisa === "ate_11" ? `${p.idade_crianca} anos` : p.tamanho_camisa} · R${" "}
+                {formatNumero(p.valor)}
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <BadgeStatus status={i.status_pagamento_camisa ?? "Pendente"} />
+              <BadgeStatus status={p.status_pagamento} />
               <button
-                disabled={i.status_pagamento_camisa === "Confirmado" || confirmando === i.id}
-                onClick={() => confirmarPagamento(i.id)}
+                disabled={p.status_pagamento === "Confirmado" || confirmando === p.id}
+                onClick={() => confirmarPagamento(p.id)}
                 className="whitespace-nowrap rounded-lg bg-sucesso px-4 py-2 text-[0.8rem] font-semibold text-white transition hover:opacity-90 disabled:cursor-default disabled:bg-sucesso-bg disabled:text-sucesso"
               >
-                {i.status_pagamento_camisa === "Confirmado" ? "✓ Confirmado" : "Confirmar pagamento"}
+                {p.status_pagamento === "Confirmado" ? "✓ Confirmado" : "Confirmar pagamento"}
               </button>
             </div>
           </div>

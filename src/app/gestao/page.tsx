@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { BadgeStatus } from "@/components/ui";
-import { MODELOS_CAMISA } from "@/lib/config";
+import { formatMoeda, formatNumero } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
 
 type Inscricao = Database["public"]["Tables"]["inscricoes"]["Row"];
@@ -58,10 +58,10 @@ export default function GestaoPage() {
   const totalArrecadado = confirmadas.reduce((acc, i) => acc + Number(i.valor), 0);
 
   const kpis = [
-    { label: "Total Inscritas", value: inscricoes.length, icon: "👑", color: "text-roxo" },
-    { label: "Confirmadas", value: confirmadas.length, icon: "✅", color: "text-sucesso" },
-    { label: "Pendentes", value: pendentes.length, icon: "⏳", color: "text-aviso" },
-    { label: "Arrecadado", value: `R$ ${totalArrecadado}`, icon: "💰", color: "text-lilas" },
+    { label: "Total Inscritas", value: formatNumero(inscricoes.length), icon: "👑", color: "text-roxo" },
+    { label: "Confirmadas", value: formatNumero(confirmadas.length), icon: "✅", color: "text-sucesso" },
+    { label: "Pendentes", value: formatNumero(pendentes.length), icon: "⏳", color: "text-aviso" },
+    { label: "Arrecadado", value: formatMoeda(totalArrecadado), icon: "💰", color: "text-lilas" },
   ];
 
   if (loading) {
@@ -88,7 +88,9 @@ export default function GestaoPage() {
             className="rounded-2xl border border-lilas bg-white p-5 text-center shadow-[0_4px_20px_rgba(100,87,155,0.08)]"
           >
             <div className="text-2xl">{k.icon}</div>
-            <div className={`font-titulo text-2xl font-bold ${k.color}`}>{k.value}</div>
+            <div className={`font-titulo text-xl sm:text-2xl font-bold tabular-nums truncate ${k.color}`}>
+              {k.value}
+            </div>
             <div className="mt-0.5 text-[0.78rem] text-muted">{k.label}</div>
           </div>
         ))}
@@ -108,11 +110,7 @@ export default function GestaoPage() {
               <div className="font-titulo text-lg font-bold text-roxo">{i.id}</div>
               <div className="text-[0.88rem] text-texto">{i.nome}</div>
               <div className="text-[0.75rem] text-muted">
-                {i.cpf} · {i.whatsapp}
-                {i.quer_camisa
-                  ? ` · Camisa ${MODELOS_CAMISA.find((m) => m.id === i.modelo_camisa)?.nome ?? i.modelo_camisa} (${i.tamanho_camisa})`
-                  : ""}{" "}
-                · R$ {i.valor}
+                {i.cpf} · {i.whatsapp} · R$ {formatNumero(i.valor)}
               </div>
             </div>
             <div className="flex items-center gap-3">

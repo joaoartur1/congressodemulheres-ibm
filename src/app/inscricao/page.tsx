@@ -13,44 +13,87 @@ import {
   CORTES_CAMISA,
   MODELOS_CAMISA,
   FAIXAS_ETARIAS_CAMISA,
+  IDADES_CAMISA_INFANTIL,
 } from "@/lib/config";
 import type { FaixaEtariaCamisa } from "@/lib/supabase/types";
+
+interface CamisaItem {
+  nome_participante: string;
+  modelo_camisa: string;
+  faixa_etaria_camisa: FaixaEtariaCamisa | "";
+  corte_camisa: string;
+  tamanho_camisa: string;
+  idade_crianca: string;
+}
+
+function itemVazio(): CamisaItem {
+  return {
+    nome_participante: "",
+    modelo_camisa: "",
+    faixa_etaria_camisa: "",
+    corte_camisa: "",
+    tamanho_camisa: "",
+    idade_crianca: "",
+  };
+}
+
+function valorItem(item: CamisaItem): number | null {
+  const modelo = MODELOS_CAMISA.find((m) => m.id === item.modelo_camisa);
+  if (!modelo || !item.faixa_etaria_camisa) return null;
+  return modelo.precos[item.faixa_etaria_camisa];
+}
 
 export default function InscricaoPage() {
   const router = useRouter();
   const { show } = useToast();
 
-  const [form, setForm] = useState({
-    nome: "",
-    cpf: "",
-    whatsapp: "",
-    quer_camisa: false,
-    modelo_camisa: "",
-    corte_camisa: "",
-    tamanho_camisa: "",
-    faixa_etaria_camisa: "" as FaixaEtariaCamisa | "",
-  });
+  const [querInscricao, setQuerInscricao] = useState(true);
+  const [querCamisa, setQuerCamisa] = useState(false);
+  const [dados, setDados] = useState({ nome: "", cpf: "", whatsapp: "" });
+  const [camisas, setCamisas] = useState<CamisaItem[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
-  const modeloSelecionado = MODELOS_CAMISA.find((m) => m.id === form.modelo_camisa);
-  const valorCamisa =
-    modeloSelecionado && form.faixa_etaria_camisa
-      ? modeloSelecionado.precos[form.faixa_etaria_camisa]
-      : null;
+  function alternarCamisa(marcado: boolean) {
+    setQuerCamisa(marcado);
+    setCamisas(marcado ? [itemVazio()] : []);
+  }
+
+  function atualizarItem(index: number, patch: Partial<CamisaItem>) {
+    setCamisas((prev) => prev.map((it, i) => (i === index ? { ...it, ...patch } : it)));
+  }
+
+  function removerItem(index: number) {
+    setCamisas((prev) => {
+      const novo = prev.filter((_, i) => i !== index);
+      if (novo.length === 0) setQuerCamisa(false);
+      return novo;
+    });
+  }
 
   function validate() {
     const e: Record<string, string> = {};
-    if (!form.nome.trim()) e.nome = "Nome obrigatório";
-    if (!isCpfValido(form.cpf)) e.cpf = "CPF inválido (use 000.000.000-00)";
-    if (form.whatsapp.replace(/\D/g, "").length < 10) e.whatsapp = "WhatsApp inválido";
-    if (form.quer_camisa) {
-      if (!form.modelo_camisa) e.modelo_camisa = "Escolha um modelo";
-      if (!form.corte_camisa) e.corte_camisa = "Escolha o corte";
-      if (!form.tamanho_camisa) e.tamanho_camisa = "Escolha um tamanho";
-      if (!form.faixa_etaria_camisa) e.faixa_etaria_camisa = "Escolha a faixa etária";
+    if (!dados.nome.trim()) e.nome = "Nome obrigatório";
+    if (!isCpfValido(dados.cpf)) e.cpf = "CPF inválido (use 000.000.000-00)";
+    if (dados.whatsapp.replace(/\D/g, "").length < 10) e.whatsapp = "WhatsApp inválido";
+
+    if (!querInscricao && camisas.length === 0) {
+      e.geral = "Escolha ao menos a inscrição ou uma camisa";
     }
+
+    camisas.forEach((item, i) => {
+      if (!item.nome_participante.trim()) e[`camisa_${i}_nome`] = "Nome de quem vai usar a camisa";
+      if (!item.modelo_camisa) e[`camisa_${i}_modelo`] = "Escolha um modelo";
+      if (!item.faixa_etaria_camisa) e[`camisa_${i}_faixa`] = "Escolha a faixa etária";
+      if (item.faixa_etaria_camisa === "ate_11") {
+        if (!item.idade_crianca) e[`camisa_${i}_idade`] = "Escolha a idade";
+      } else if (item.faixa_etaria_camisa === "12_mais") {
+        if (!item.corte_camisa) e[`camisa_${i}_corte`] = "Escolha o corte";
+        if (!item.tamanho_camisa) e[`camisa_${i}_tamanho`] = "Escolha um tamanho";
+      }
+    });
+
     return e;
   }
 
@@ -64,22 +107,29 @@ export default function InscricaoPage() {
     setErrors({});
     setLoading(true);
 
-    const tamanhoCompleto =
-      form.corte_camisa === "Babylook"
-        ? `${form.tamanho_camisa} Babylook`
-        : form.tamanho_camisa;
+    const p_camisas = camisas.map((item) => ({
+      nome_participante: item.nome_participante,
+      modelo_camisa: item.modelo_camisa,
+      faixa_etaria_camisa: item.faixa_etaria_camisa,
+      corte_camisa: item.faixa_etaria_camisa === "12_mais" ? item.corte_camisa : null,
+      tamanho_camisa:
+        item.faixa_etaria_camisa === "12_mais"
+          ? item.corte_camisa === "Babylook"
+            ? `${item.tamanho_camisa} Babylook`
+            : item.tamanho_camisa
+          : null,
+      idade_crianca: item.faixa_etaria_camisa === "ate_11" ? Number(item.idade_crianca) : null,
+    }));
 
-    const res = await fetch("/api/criar-inscricao", {
+    const res = await fetch("/api/criar-pedido", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        p_nome: form.nome,
-        p_cpf: form.cpf,
-        p_whatsapp: form.whatsapp,
-        p_quer_camisa: form.quer_camisa,
-        p_modelo_camisa: form.quer_camisa ? form.modelo_camisa : null,
-        p_tamanho_camisa: form.quer_camisa ? tamanhoCompleto : null,
-        p_faixa_etaria_camisa: form.quer_camisa ? (form.faixa_etaria_camisa || null) : null,
+        p_quer_inscricao: querInscricao,
+        p_nome: dados.nome,
+        p_cpf: dados.cpf,
+        p_whatsapp: dados.whatsapp,
+        p_camisas,
       }),
     });
     const json = await res.json();
@@ -90,7 +140,7 @@ export default function InscricaoPage() {
       if (json.code === "23505") {
         show("Este CPF já possui uma inscrição.", "error");
       } else {
-        show(json.error || "Não foi possível concluir a inscrição.", "error");
+        show(json.error || "Não foi possível concluir o pedido.", "error");
       }
       return;
     }
@@ -101,23 +151,47 @@ export default function InscricaoPage() {
 
   return (
     <div className="fade-in mx-auto max-w-[640px] px-6 py-16">
-      <SectionTitle subtitle="Garanta sua vaga no Congresso de Mulheres 2026">
-        Faça sua <em className="italic text-lilas">Inscrição</em>
+      <SectionTitle subtitle="Garanta sua vaga e/ou sua camisa no Congresso de Mulheres 2026">
+        Faça seu <em className="italic text-lilas">Pedido</em>
       </SectionTitle>
 
       <Card>
-        <Alert type="info">💜 Inscrição: <strong>R$ {VALOR_BASE},00</strong></Alert>
+        {querInscricao && <Alert type="info">💜 Inscrição: <strong>R$ {VALOR_BASE},00</strong></Alert>}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <label className="flex cursor-pointer items-center gap-3 rounded-[10px] border-2 border-lilas bg-creme px-4 py-3.5 transition hover:border-roxo">
+            <input
+              type="checkbox"
+              checked={querInscricao}
+              onChange={(e) => setQuerInscricao(e.target.checked)}
+              className="h-[18px] w-[18px] accent-roxo"
+            />
+            <span className="text-[0.88rem] font-medium text-texto">
+              Quero me inscrever no congresso
+            </span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-3 rounded-[10px] border-2 border-lilas bg-creme px-4 py-3.5 transition hover:border-roxo">
+            <input
+              type="checkbox"
+              checked={querCamisa}
+              onChange={(e) => alternarCamisa(e.target.checked)}
+              className="h-[18px] w-[18px] accent-roxo"
+            />
+            <span className="text-[0.88rem] font-medium text-texto">Quero comprar camisa(s)</span>
+          </label>
+
+          {errors.geral && <div className="text-[0.78rem] text-perigo">{errors.geral}</div>}
+
           <div>
             <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-              Nome Completo
+              {querInscricao ? "Nome Completo" : "Seu Nome (quem está comprando)"}
             </label>
             <input
               type="text"
               placeholder="Seu nome completo"
-              value={form.nome}
-              onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              value={dados.nome}
+              onChange={(e) => setDados({ ...dados, nome: e.target.value })}
               className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
             />
             {errors.nome && <div className="mt-1 text-[0.78rem] text-perigo">{errors.nome}</div>}
@@ -128,8 +202,8 @@ export default function InscricaoPage() {
             <input
               type="text"
               placeholder="000.000.000-00"
-              value={form.cpf}
-              onChange={(e) => setForm({ ...form, cpf: formatCPF(e.target.value) })}
+              value={dados.cpf}
+              onChange={(e) => setDados({ ...dados, cpf: formatCPF(e.target.value) })}
               className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
             />
             {errors.cpf && <div className="mt-1 text-[0.78rem] text-perigo">{errors.cpf}</div>}
@@ -142,8 +216,8 @@ export default function InscricaoPage() {
             <input
               type="text"
               placeholder="DDD + número"
-              value={form.whatsapp}
-              onChange={(e) => setForm({ ...form, whatsapp: formatWhats(e.target.value) })}
+              value={dados.whatsapp}
+              onChange={(e) => setDados({ ...dados, whatsapp: formatWhats(e.target.value) })}
               className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
             />
             {errors.whatsapp && (
@@ -151,169 +225,224 @@ export default function InscricaoPage() {
             )}
           </div>
 
-          <label className="flex cursor-pointer items-center gap-3 rounded-[10px] border-2 border-lilas bg-creme px-4 py-3.5 transition hover:border-roxo">
-            <input
-              type="checkbox"
-              checked={form.quer_camisa}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  quer_camisa: e.target.checked,
-                  modelo_camisa: "",
-                  corte_camisa: "",
-                  tamanho_camisa: "",
-                  faixa_etaria_camisa: "",
-                })
-              }
-              className="h-[18px] w-[18px] accent-roxo"
-            />
-            <span className="text-[0.88rem] font-medium text-texto">Quero a Camisa</span>
-          </label>
-
-          {form.quer_camisa && (
+          {querCamisa && (
             <div className="fade-in space-y-5">
               <Alert type="info">
-                O pagamento da camisa é feito separado da inscrição, direto pro PIX da
-                responsável pelas camisas — você vai ver os dois PIX na tela seguinte.
+                O pagamento da(s) camisa(s) é feito separado da inscrição, direto pro PIX da
+                responsável pelas camisas — você vai ver os PIX na tela seguinte.
               </Alert>
 
-              <div>
-                <label className="mb-2 block text-[0.82rem] font-semibold text-roxo">
-                  Escolha o Modelo{" "}
-                  <span className="font-normal text-muted">(toque na lupa pra ampliar)</span>
-                </label>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {MODELOS_CAMISA.map((m) => (
-                    <div
-                      key={m.id}
-                      className={`relative overflow-hidden rounded-xl border-2 transition ${
-                        form.modelo_camisa === m.id
-                          ? "border-roxo shadow-[0_0_0_3px_rgba(100,87,155,0.2)]"
-                          : "border-lilas hover:border-roxo"
-                      }`}
-                    >
+              {camisas.map((item, i) => (
+                <div key={i} className="space-y-4 rounded-[14px] border-2 border-dashed border-lilas p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[0.8rem] font-bold uppercase tracking-wide text-roxo">
+                      Camisa {i + 1}
+                    </span>
+                    {camisas.length > 0 && (
                       <button
                         type="button"
-                        onClick={() => setForm({ ...form, modelo_camisa: m.id })}
-                        className="block w-full text-left"
+                        onClick={() => removerItem(i)}
+                        className="text-[0.78rem] font-semibold text-perigo hover:underline"
                       >
-                        <div className="relative aspect-square w-full">
-                          <Image src={m.imagem} alt={m.nome} fill className="object-cover" />
-                        </div>
-                        <div className="p-2">
-                          <div className="text-xs font-bold text-roxo">{m.nome}</div>
-                          <div className="text-[0.7rem] text-muted">{m.tipo}</div>
-                        </div>
+                        ✕ Remover
                       </button>
-                      <button
-                        type="button"
-                        aria-label={`Ampliar imagem — ${m.nome}`}
-                        onClick={() => setLightbox({ src: m.imagem, alt: m.nome })}
-                        className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-roxo-escuro/60 text-sm text-white backdrop-blur transition hover:bg-roxo-escuro/80"
-                      >
-                        🔍
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                {errors.modelo_camisa && (
-                  <div className="mt-1 text-[0.78rem] text-perigo">{errors.modelo_camisa}</div>
-                )}
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-                  Faixa Etária <span className="font-normal text-muted">(define o valor)</span>
-                </label>
-                <select
-                  value={form.faixa_etaria_camisa}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      faixa_etaria_camisa: e.target.value as FaixaEtariaCamisa,
-                    })
-                  }
-                  className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
-                >
-                  <option value="">Selecione</option>
-                  {FAIXAS_ETARIAS_CAMISA.map((f) => (
-                    <option key={f.valor} value={f.valor}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.faixa_etaria_camisa && (
-                  <div className="mt-1 text-[0.78rem] text-perigo">
-                    {errors.faixa_etaria_camisa}
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-                    Corte
-                  </label>
-                  <select
-                    value={form.corte_camisa}
-                    onChange={(e) => setForm({ ...form, corte_camisa: e.target.value })}
-                    className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
-                  >
-                    <option value="">Selecione</option>
-                    {CORTES_CAMISA.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.corte_camisa && (
-                    <div className="mt-1 text-[0.78rem] text-perigo">{errors.corte_camisa}</div>
+                  <div>
+                    <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                      Nome de quem vai usar
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nome completo"
+                      value={item.nome_participante}
+                      onChange={(e) => atualizarItem(i, { nome_participante: e.target.value })}
+                      className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                    />
+                    {errors[`camisa_${i}_nome`] && (
+                      <div className="mt-1 text-[0.78rem] text-perigo">{errors[`camisa_${i}_nome`]}</div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-[0.82rem] font-semibold text-roxo">
+                      Escolha o Modelo{" "}
+                      <span className="font-normal text-muted">(toque na lupa pra ampliar)</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {MODELOS_CAMISA.map((m) => (
+                        <div
+                          key={m.id}
+                          className={`relative overflow-hidden rounded-xl border-2 transition ${
+                            item.modelo_camisa === m.id
+                              ? "border-roxo shadow-[0_0_0_3px_rgba(100,87,155,0.2)]"
+                              : "border-lilas hover:border-roxo"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => atualizarItem(i, { modelo_camisa: m.id })}
+                            className="block w-full text-left"
+                          >
+                            <div className="relative aspect-square w-full">
+                              <Image src={m.imagem} alt={m.nome} fill className="object-cover" />
+                            </div>
+                            <div className="p-2">
+                              <div className="text-xs font-bold text-roxo">{m.nome}</div>
+                              <div className="text-[0.7rem] text-muted">{m.tipo}</div>
+                            </div>
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Ampliar imagem — ${m.nome}`}
+                            onClick={() => setLightbox({ src: m.imagem, alt: m.nome })}
+                            className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-roxo-escuro/60 text-sm text-white backdrop-blur transition hover:bg-roxo-escuro/80"
+                          >
+                            🔍
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {errors[`camisa_${i}_modelo`] && (
+                      <div className="mt-1 text-[0.78rem] text-perigo">{errors[`camisa_${i}_modelo`]}</div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                      Faixa Etária <span className="font-normal text-muted">(define o valor)</span>
+                    </label>
+                    <select
+                      value={item.faixa_etaria_camisa}
+                      onChange={(e) =>
+                        atualizarItem(i, {
+                          faixa_etaria_camisa: e.target.value as FaixaEtariaCamisa,
+                          corte_camisa: "",
+                          tamanho_camisa: "",
+                          idade_crianca: "",
+                        })
+                      }
+                      className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                    >
+                      <option value="">Selecione</option>
+                      {FAIXAS_ETARIAS_CAMISA.map((f) => (
+                        <option key={f.valor} value={f.valor}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors[`camisa_${i}_faixa`] && (
+                      <div className="mt-1 text-[0.78rem] text-perigo">{errors[`camisa_${i}_faixa`]}</div>
+                    )}
+                  </div>
+
+                  {item.faixa_etaria_camisa === "ate_11" && (
+                    <div>
+                      <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                        Idade da Criança
+                      </label>
+                      <select
+                        value={item.idade_crianca}
+                        onChange={(e) => atualizarItem(i, { idade_crianca: e.target.value })}
+                        className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                      >
+                        <option value="">Selecione</option>
+                        {IDADES_CAMISA_INFANTIL.map((idade) => (
+                          <option key={idade} value={idade}>
+                            {idade} {idade === 1 ? "ano" : "anos"}
+                          </option>
+                        ))}
+                      </select>
+                      {errors[`camisa_${i}_idade`] && (
+                        <div className="mt-1 text-[0.78rem] text-perigo">{errors[`camisa_${i}_idade`]}</div>
+                      )}
+                    </div>
                   )}
-                </div>
 
-                <div>
-                  <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
-                    Tamanho
-                  </label>
-                  <select
-                    value={form.tamanho_camisa}
-                    onChange={(e) => setForm({ ...form, tamanho_camisa: e.target.value })}
-                    className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
-                  >
-                    <option value="">Selecione</option>
-                    {TAMANHOS_CAMISA.map((tam) => (
-                      <option key={tam} value={tam}>
-                        {tam}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.tamanho_camisa && (
-                    <div className="mt-1 text-[0.78rem] text-perigo">
-                      {errors.tamanho_camisa}
+                  {item.faixa_etaria_camisa === "12_mais" && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                          Corte
+                        </label>
+                        <select
+                          value={item.corte_camisa}
+                          onChange={(e) => atualizarItem(i, { corte_camisa: e.target.value })}
+                          className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                        >
+                          <option value="">Selecione</option>
+                          {CORTES_CAMISA.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                        {errors[`camisa_${i}_corte`] && (
+                          <div className="mt-1 text-[0.78rem] text-perigo">{errors[`camisa_${i}_corte`]}</div>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="mb-1.5 block text-[0.82rem] font-semibold text-roxo">
+                          Tamanho
+                        </label>
+                        <select
+                          value={item.tamanho_camisa}
+                          onChange={(e) => atualizarItem(i, { tamanho_camisa: e.target.value })}
+                          className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-3 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white"
+                        >
+                          <option value="">Selecione</option>
+                          {TAMANHOS_CAMISA.map((tam) => (
+                            <option key={tam} value={tam}>
+                              {tam}
+                            </option>
+                          ))}
+                        </select>
+                        {errors[`camisa_${i}_tamanho`] && (
+                          <div className="mt-1 text-[0.78rem] text-perigo">
+                            {errors[`camisa_${i}_tamanho`]}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => setCamisas((prev) => [...prev, itemVazio()])}
+                className="w-full rounded-[10px] border-2 border-dashed border-lilas py-3 text-[0.85rem] font-semibold text-roxo transition hover:border-roxo hover:bg-creme"
+              >
+                + Adicionar outra camisa
+              </button>
             </div>
           )}
 
           <div className="space-y-1.5 rounded-[10px] bg-creme px-4 py-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[0.85rem] text-muted">Inscrição</span>
-              <strong className="font-titulo text-lg text-roxo">R$ {VALOR_BASE},00</strong>
-            </div>
-            {form.quer_camisa && valorCamisa !== null && (
+            {querInscricao && (
               <div className="flex items-center justify-between">
-                <span className="text-[0.85rem] text-muted">
-                  Camisa ({modeloSelecionado?.nome})
-                </span>
-                <strong className="font-titulo text-lg text-roxo">R$ {valorCamisa},00</strong>
+                <span className="text-[0.85rem] text-muted">Inscrição</span>
+                <strong className="font-titulo text-lg text-roxo">R$ {VALOR_BASE},00</strong>
               </div>
             )}
+            {camisas.map((item, i) => {
+              const valor = valorItem(item);
+              if (valor === null) return null;
+              return (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-[0.85rem] text-muted">
+                    Camisa {item.nome_participante || i + 1}
+                  </span>
+                  <strong className="font-titulo text-lg text-roxo">R$ {valor},00</strong>
+                </div>
+              );
+            })}
           </div>
 
           <PrimaryButton type="submit" disabled={loading} className="w-full">
-            {loading ? <Spinner size={20} /> : "✦ Confirmar Inscrição"}
+            {loading ? <Spinner size={20} /> : "✦ Confirmar Pedido"}
           </PrimaryButton>
         </form>
       </Card>

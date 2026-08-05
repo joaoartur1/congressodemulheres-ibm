@@ -37,6 +37,9 @@ export const FAIXAS_ETARIAS_CAMISA = [
   { valor: "12_mais", label: "12 anos ou mais" },
 ] as const;
 
+// Camisa infantil (11 anos ou menos) não escolhe tamanho BR — só a idade.
+export const IDADES_CAMISA_INFANTIL = Array.from({ length: 11 }, (_, i) => i + 1);
+
 export const MODELOS_CAMISA = [
   {
     id: "oficial",
@@ -100,3 +103,7 @@ export const PALETA_CORES = [
 // TODO: preencher com o link da playlist do congresso no Spotify quando
 // estiver pronta.
 export const SPOTIFY_PLAYLIST_URL = "";
+
+// Suporte — dúvidas sobre o funcionamento do site (não inscrição/pagamento).
+export const NOME_DEV = "João Artur";
+export const WHATSAPP_JOAO = "5598985497906";

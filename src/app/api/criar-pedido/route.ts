@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
 
   const { data: liberado } = await supabase.rpc("checar_rate_limit", {
-    p_chave: `criar_inscricao:${ip}`,
+    p_chave: `criar_pedido:${ip}`,
     p_limite: LIMITE,
     p_janela_minutos: JANELA_MINUTOS,
   });
@@ -22,14 +22,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { data, error } = await supabase.rpc("criar_inscricao", {
+  const { data, error } = await supabase.rpc("criar_pedido", {
+    p_quer_inscricao: body.p_quer_inscricao,
     p_nome: body.p_nome,
     p_cpf: body.p_cpf,
     p_whatsapp: body.p_whatsapp,
-    p_quer_camisa: body.p_quer_camisa,
-    p_modelo_camisa: body.p_modelo_camisa,
-    p_tamanho_camisa: body.p_tamanho_camisa,
-    p_faixa_etaria_camisa: body.p_faixa_etaria_camisa,
+    p_camisas: body.p_camisas ?? [],
   });
 
   if (error) {
