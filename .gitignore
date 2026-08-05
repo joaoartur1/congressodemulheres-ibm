@@ -44,3 +44,4 @@ next-env.d.ts
 # usa de verdade já foi copiado pra public/
 /docs
 /fotoscongresso
+supabase/.temp/
