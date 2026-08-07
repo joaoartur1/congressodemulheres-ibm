@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
@@ -14,6 +14,7 @@ import {
   MODELOS_CAMISA,
   FAIXAS_ETARIAS_CAMISA,
   IDADES_CAMISA_INFANTIL,
+  PRAZO_CAMISAS,
 } from "@/lib/config";
 import type { FaixaEtariaCamisa } from "@/lib/supabase/types";
 
@@ -47,6 +48,12 @@ export default function InscricaoPage() {
   const router = useRouter();
   const { show } = useToast();
 
+  const [camisaFechada, setCamisaFechada] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Date.now() é impuro, não pode rodar durante o render
+    setCamisaFechada(Date.now() > new Date(PRAZO_CAMISAS).getTime());
+  }, []);
+
   const [querInscricao, setQuerInscricao] = useState(true);
   const [querCamisa, setQuerCamisa] = useState(false);
   const [dados, setDados] = useState({ nome: "", cpf: "", whatsapp: "" });
@@ -56,6 +63,7 @@ export default function InscricaoPage() {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
   function alternarCamisa(marcado: boolean) {
+    if (camisaFechada) return;
     setQuerCamisa(marcado);
     setCamisas(marcado ? [itemVazio()] : []);
   }
@@ -166,15 +174,22 @@ export default function InscricaoPage() {
             </span>
           </label>
 
-          <label className="flex cursor-pointer items-center gap-3 rounded-[10px] border-2 border-lilas bg-creme px-4 py-3.5 transition hover:border-roxo">
-            <input
-              type="checkbox"
-              checked={querCamisa}
-              onChange={(e) => alternarCamisa(e.target.checked)}
-              className="h-[18px] w-[18px] accent-roxo"
-            />
-            <span className="text-[0.88rem] font-medium text-texto">Quero comprar camisa(s)</span>
-          </label>
+          {camisaFechada ? (
+            <Alert type="warn">
+              👕 As vendas de camisa encerraram no dia 12/08 às 23h59. Só é possível se inscrever
+              no congresso agora.
+            </Alert>
+          ) : (
+            <label className="flex cursor-pointer items-center gap-3 rounded-[10px] border-2 border-lilas bg-creme px-4 py-3.5 transition hover:border-roxo">
+              <input
+                type="checkbox"
+                checked={querCamisa}
+                onChange={(e) => alternarCamisa(e.target.checked)}
+                className="h-[18px] w-[18px] accent-roxo"
+              />
+              <span className="text-[0.88rem] font-medium text-texto">Quero comprar camisa(s)</span>
+            </label>
+          )}
 
           {errors.geral && <div className="text-[0.78rem] text-perigo">{errors.geral}</div>}
 

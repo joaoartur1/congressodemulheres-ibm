@@ -34,6 +34,12 @@ export const PIX_CAMISA_BANCO = "Banco Inter";
 // WhatsApp da Rayssa — recebe a confirmação do PIX da camisa.
 export const WHATSAPP_RAYSSA = process.env.NEXT_PUBLIC_WHATSAPP_RAYSSA!;
 
+// Pedidos de camisa só são aceitos até essa data/hora (horário de Brasília,
+// mesmo fuso de Santa Inês - MA). Depois disso o formulário esconde a opção
+// de comprar camisa — e o servidor (criar_pedido) também recusa o pedido,
+// mesmo que alguém chame a API direto.
+export const PRAZO_CAMISAS = "2026-08-12T23:59:59-03:00";
+
 export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
 export const CORTES_CAMISA = ["Normal", "Babylook"] as const;
 
