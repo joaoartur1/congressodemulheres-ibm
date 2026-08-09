@@ -116,6 +116,33 @@ export default async function HomePage() {
 
       <Countdown />
 
+      <div className="fade-in bg-roxo-escuro px-6 py-16">
+        <div className="mx-auto flex max-w-[900px] flex-col items-center gap-6 text-center">
+          <span className="inline-block rounded-full border border-dourado/30 bg-dourado/10 px-4 py-1.5 text-[0.72rem] font-medium uppercase tracking-[0.25em] text-dourado">
+            ✦ Convite Especial
+          </span>
+          <h2 className="font-titulo text-[clamp(1.8rem,4vw,2.6rem)] font-bold text-white">
+            Você Está <em className="italic text-dourado">Convidada</em>
+          </h2>
+          <div className="aspect-[9/16] w-[240px] overflow-hidden rounded-2xl border border-dourado/30 bg-black shadow-[0_12px_50px_rgba(0,0,0,0.4)] sm:w-[280px]">
+            <video
+              src="/videos-evento/chamada.mp4"
+              poster="/videos-evento/chamada-poster.jpg"
+              controls
+              preload="metadata"
+              className="h-full w-full"
+              aria-label={`Convite em vídeo para o ${EVENTO.subtitulo}`}
+            />
+          </div>
+          <Link
+            href="/inscricao"
+            className="animate-glow inline-block rounded-full bg-gradient-to-br from-dourado to-[#f5e7c8] px-10 py-[0.9rem] text-[0.95rem] font-bold uppercase tracking-[0.06em] text-roxo-escuro shadow-[0_4px_20px_rgba(235,216,187,0.6)] transition hover:-translate-y-0.5"
+          >
+            Quero me Inscrever ✦
+          </Link>
+        </div>
+      </div>
+
       <div className="fade-in mx-auto max-w-[1100px] px-6 py-16">
         <h2 className="text-center font-titulo text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-roxo-escuro">
           Ela à <em className="italic text-roxo-escuro">Imagem</em> Dele
