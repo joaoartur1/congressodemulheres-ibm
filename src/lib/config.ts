@@ -111,9 +111,8 @@ export const PALETA_CORES = [
   { nome: "Dourado", hex: "#EBD8BB" },
 ] as const;
 
-// TODO: preencher com o link da playlist do congresso no Spotify quando
-// estiver pronta.
-export const SPOTIFY_PLAYLIST_URL = "";
+// Playlist "Doce Presença - Ela à imagem dEle" no Spotify.
+export const SPOTIFY_PLAYLIST_URL = "https://open.spotify.com/playlist/0qmkG9oOoiZqFCzTc8dS0U";
 
 // Suporte — dúvidas sobre o funcionamento do site (não inscrição/pagamento).
 export const NOME_DEV = "João Artur";
