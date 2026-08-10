@@ -59,20 +59,19 @@ export default function GestaoCamisasPage() {
   const infantis = pedidos.filter((p) => p.idade_crianca !== null);
   const totalArrecadado = confirmados.reduce((acc, p) => acc + Number(p.valor), 0);
 
-  const porModelo = MODELOS_CAMISA.map((m) => ({
-    ...m,
-    pedidos: pedidos.filter((p) => p.modelo_camisa === m.id),
-  })).filter((m) => m.pedidos.length > 0);
-
-  const porTamanho = [
-    ...TAMANHOS_CAMISA.flatMap((t) =>
-      CORTES_CAMISA.map((c) => ({
-        label: c === "Normal" ? t : `${t} ${c}`,
-        qtd: pedidos.filter((p) => p.tamanho_camisa === t && p.corte_camisa === c).length,
-      }))
-    ),
-    { label: "Infantil", qtd: infantis.length },
-  ].filter((t) => t.qtd > 0);
+  const porModelo = MODELOS_CAMISA.map((m) => {
+    const pedidosModelo = pedidos.filter((p) => p.modelo_camisa === m.id);
+    const tamanhos = [
+      ...TAMANHOS_CAMISA.flatMap((t) =>
+        CORTES_CAMISA.map((c) => ({
+          label: c === "Normal" ? t : `${t} ${c}`,
+          qtd: pedidosModelo.filter((p) => p.tamanho_camisa === t && p.corte_camisa === c).length,
+        }))
+      ),
+      { label: "Infantil", qtd: pedidosModelo.filter((p) => p.idade_crianca !== null).length },
+    ].filter((t) => t.qtd > 0);
+    return { ...m, pedidos: pedidosModelo, tamanhos };
+  }).filter((m) => m.pedidos.length > 0);
 
   const kpis = [
     { label: "Total de Pedidos", value: formatNumero(pedidos.length), icon: "👕", color: "text-roxo" },
@@ -116,36 +115,29 @@ export default function GestaoCamisasPage() {
 
       {porModelo.length > 0 && (
         <>
-          <h3 className="mb-4 font-titulo text-xl font-bold text-roxo">Pedidos por Modelo</h3>
-          <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <h3 className="mb-4 font-titulo text-xl font-bold text-roxo">Pedidos por Modelo e Tamanho</h3>
+          <div className="mb-10 space-y-6">
             {porModelo.map((m) => (
-              <div
-                key={m.id}
-                className="rounded-xl border border-lilas bg-white p-3 text-center shadow-[0_2px_10px_rgba(100,87,155,0.06)]"
-              >
-                <div className="font-titulo text-2xl font-bold tabular-nums text-roxo">
-                  {formatNumero(m.pedidos.length)}
+              <div key={m.id}>
+                <div className="mb-2.5 flex items-baseline gap-2">
+                  <h4 className="font-titulo text-base font-bold text-roxo">{m.nome}</h4>
+                  <span className="text-[0.78rem] text-muted">
+                    ({formatNumero(m.pedidos.length)} {m.pedidos.length === 1 ? "pedido" : "pedidos"})
+                  </span>
                 </div>
-                <div className="text-[0.75rem] text-muted">{m.nome}</div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {porTamanho.length > 0 && (
-        <>
-          <h3 className="mb-4 font-titulo text-xl font-bold text-roxo">Tamanhos de Camisas Pedidas</h3>
-          <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {porTamanho.map((t) => (
-              <div
-                key={t.label}
-                className="rounded-xl border border-lilas bg-white p-3 text-center shadow-[0_2px_10px_rgba(100,87,155,0.06)]"
-              >
-                <div className="font-titulo text-2xl font-bold tabular-nums text-roxo">
-                  {formatNumero(t.qtd)}
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+                  {m.tamanhos.map((t) => (
+                    <div
+                      key={t.label}
+                      className="rounded-xl border border-lilas bg-white p-3 text-center shadow-[0_2px_10px_rgba(100,87,155,0.06)]"
+                    >
+                      <div className="font-titulo text-xl font-bold tabular-nums text-roxo">
+                        {formatNumero(t.qtd)}
+                      </div>
+                      <div className="text-[0.72rem] text-muted">{t.label}</div>
+                    </div>
+                  ))}
                 </div>
-                <div className="text-[0.75rem] text-muted">{t.label}</div>
               </div>
             ))}
           </div>
