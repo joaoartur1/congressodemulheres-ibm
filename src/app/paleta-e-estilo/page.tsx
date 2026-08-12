@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { SectionTitle } from "@/components/ui";
 import { PALETA_CORES, EVENTO } from "@/lib/config";
@@ -23,6 +24,16 @@ export default async function PaletaEEstiloPage() {
       >
         Paleta e <em className="italic text-lilas">Estilo</em>
       </SectionTitle>
+
+      <div className="relative mx-auto mb-14 aspect-[4/5] w-full max-w-[360px] overflow-hidden rounded-2xl border border-lilas shadow-[0_8px_40px_rgba(100,87,155,0.15)]">
+        <Image
+          src="/looks/capa-paleta.jpg"
+          alt="Paleta de Cores — Doce Presença, Ela à Imagem Dele"
+          fill
+          sizes="360px"
+          className="object-cover"
+        />
+      </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {PALETA_CORES.map((c) => (
