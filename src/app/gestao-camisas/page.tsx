@@ -16,6 +16,7 @@ export default function GestaoCamisasPage() {
   const [pedidos, setPedidos] = useState<PedidoCamisa[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [excluindo, setExcluindo] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<"todos" | "pendentes" | "pagos">("todos");
 
@@ -54,6 +55,18 @@ export default function GestaoCamisasPage() {
       return;
     }
     show("Pagamento da camisa confirmado!");
+  }
+
+  async function excluirPedido(id: string) {
+    if (!window.confirm("Excluir este pedido de camisa? Essa ação não pode ser desfeita.")) return;
+    setExcluindo(id);
+    const { error } = await supabase.from("pedidos_camisas").delete().eq("id", id);
+    setExcluindo(null);
+    if (error) {
+      show("Não foi possível excluir o pedido.", "error");
+      return;
+    }
+    show("Pedido excluído.");
   }
 
   const pendentes = pedidos.filter((p) => p.status_pagamento !== "Confirmado");
@@ -228,6 +241,14 @@ export default function GestaoCamisasPage() {
                 className="whitespace-nowrap rounded-lg bg-sucesso px-4 py-2 text-[0.8rem] font-semibold text-white transition hover:opacity-90 disabled:cursor-default disabled:bg-sucesso-bg disabled:text-sucesso"
               >
                 {p.status_pagamento === "Confirmado" ? "✓ Confirmado" : "Confirmar pagamento"}
+              </button>
+              <button
+                disabled={excluindo === p.id}
+                onClick={() => excluirPedido(p.id)}
+                aria-label="Excluir pedido"
+                className="whitespace-nowrap rounded-lg border border-perigo px-3 py-2 text-[0.8rem] font-semibold text-perigo transition hover:bg-perigo-bg disabled:cursor-default disabled:opacity-50"
+              >
+                🗑️ Excluir
               </button>
             </div>
           </div>
