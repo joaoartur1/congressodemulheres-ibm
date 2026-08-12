@@ -15,6 +15,8 @@ export default function GestaoPage() {
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [busca, setBusca] = useState("");
+  const [filtro, setFiltro] = useState<"todos" | "pendentes" | "pagos">("todos");
 
   const carregar = useCallback(async () => {
     const { data } = await supabase
@@ -57,6 +59,18 @@ export default function GestaoPage() {
   const confirmadas = inscricoes.filter((i) => i.status_pagamento === "Confirmado");
   const totalArrecadado = confirmadas.reduce((acc, i) => acc + Number(i.valor), 0);
 
+  const inscricoesFiltradas = inscricoes
+    .filter((i) => {
+      if (filtro === "pendentes") return i.status_pagamento !== "Confirmado";
+      if (filtro === "pagos") return i.status_pagamento === "Confirmado";
+      return true;
+    })
+    .filter((i) => {
+      const termo = busca.trim().toLowerCase();
+      if (!termo) return true;
+      return i.nome.toLowerCase().includes(termo);
+    });
+
   const kpis = [
     { label: "Total Inscritas", value: formatNumero(inscricoes.length), icon: "👑", color: "text-roxo" },
     { label: "Confirmadas", value: formatNumero(confirmadas.length), icon: "✅", color: "text-sucesso" },
@@ -97,11 +111,47 @@ export default function GestaoPage() {
       </div>
 
       <h3 className="mb-4 font-titulo text-xl font-bold text-roxo">Inscrições</h3>
+
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <input
+          type="text"
+          placeholder="🔍 Buscar por nome…"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          className="w-full rounded-[10px] border-2 border-lilas bg-creme px-4 py-2.5 text-sm text-texto outline-none transition focus:border-roxo focus:bg-white sm:max-w-[280px]"
+        />
+        <div className="flex gap-2">
+          {(
+            [
+              { valor: "todos", label: "Todos" },
+              { valor: "pendentes", label: "Pendentes" },
+              { valor: "pagos", label: "Pagos" },
+            ] as const
+          ).map((f) => (
+            <button
+              key={f.valor}
+              type="button"
+              onClick={() => setFiltro(f.valor)}
+              className={`rounded-full px-4 py-2 text-[0.8rem] font-semibold transition ${
+                filtro === f.valor
+                  ? "bg-roxo text-white"
+                  : "border border-lilas bg-white text-roxo hover:bg-creme"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="space-y-3">
         {inscricoes.length === 0 && (
           <p className="text-sm text-muted">Nenhuma inscrição ainda.</p>
         )}
-        {inscricoes.map((i) => (
+        {inscricoes.length > 0 && inscricoesFiltradas.length === 0 && (
+          <p className="text-sm text-muted">Nenhuma inscrição encontrada.</p>
+        )}
+        {inscricoesFiltradas.map((i) => (
           <div
             key={i.id}
             className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-lilas bg-white p-4 shadow-[0_2px_10px_rgba(100,87,155,0.07)]"
