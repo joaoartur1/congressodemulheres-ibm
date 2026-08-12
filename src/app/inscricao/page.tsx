@@ -176,7 +176,7 @@ export default function InscricaoPage() {
 
           {camisaFechada ? (
             <Alert type="warn">
-              👕 As vendas de camisa encerraram no dia 12/08 às 14h00. Só é possível se inscrever
+              👕 As vendas de camisa encerraram no dia 13/08 às 23h59. Só é possível se inscrever
               no congresso agora.
             </Alert>
           ) : (
