@@ -40,7 +40,7 @@ export const WHATSAPP_RAYSSA = process.env.NEXT_PUBLIC_WHATSAPP_RAYSSA!;
 // mesmo que alguém chame a API direto.
 export const PRAZO_CAMISAS = "2026-08-13T23:59:59-03:00";
 
-export const TAMANHOS_CAMISA = ["P", "M", "G", "GG"] as const;
+export const TAMANHOS_CAMISA = ["PP", "P", "M", "G", "GG", "XG"] as const;
 export const CORTES_CAMISA = ["Normal", "Babylook"] as const;
 
 export const FAIXAS_ETARIAS_CAMISA = [
