@@ -39,6 +39,8 @@ export function Header({
   if (role === "tesouraria") tabsEquipe.push({ href: "/gestao", label: "Gestão e Financeiro" });
   if (role === "recepcao") tabsEquipe.push({ href: "/checkin", label: "Check-in de Entrada" });
   if (role === "camisas") tabsEquipe.push({ href: "/gestao-camisas", label: "Gestão de Camisas" });
+  if (role === "camisas") tabsEquipe.push({ href: "/venda-estande", label: "Venda no Estande" });
+  if (role === "camisas") tabsEquipe.push({ href: "/entrega-camisas", label: "Entrega de Camisas" });
 
   const tabsSecundarias = [...TABS_SECUNDARIAS, ...tabsEquipe];
   const todasAsTabs = [...TABS_PRINCIPAIS, ...tabsSecundarias];

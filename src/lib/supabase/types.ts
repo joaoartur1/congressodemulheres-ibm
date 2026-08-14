@@ -58,6 +58,7 @@ export interface Database {
           faixa_etaria_camisa: FaixaEtariaCamisa;
           valor: number;
           status_pagamento: StatusPagamento;
+          entregue: boolean;
           created_at: string;
         };
         Insert: {
@@ -74,9 +75,30 @@ export interface Database {
           faixa_etaria_camisa: FaixaEtariaCamisa;
           valor: number;
           status_pagamento?: StatusPagamento;
+          entregue?: boolean;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["pedidos_camisas"]["Insert"]>;
+        Relationships: [];
+      };
+      estoque_extra_camisas: {
+        Row: {
+          id: number;
+          modelo_camisa: string;
+          tamanho_camisa: string;
+          corte_camisa: string;
+          quantidade_total: number;
+          quantidade_vendida: number;
+        };
+        Insert: {
+          id?: number;
+          modelo_camisa: string;
+          tamanho_camisa: string;
+          corte_camisa: string;
+          quantidade_total: number;
+          quantidade_vendida?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["estoque_extra_camisas"]["Insert"]>;
         Relationships: [];
       };
       perfis_equipe: {
@@ -204,6 +226,18 @@ export interface Database {
       checar_rate_limit: {
         Args: { p_chave: string; p_limite: number; p_janela_minutos: number };
         Returns: boolean;
+      };
+      vender_camisa_estande: {
+        Args: {
+          p_modelo: string;
+          p_tamanho: string;
+          p_corte: string;
+          p_nome_participante: string;
+          p_nome_comprador: string;
+          p_cpf_comprador: string;
+          p_whatsapp_comprador: string;
+        };
+        Returns: Database["public"]["Tables"]["pedidos_camisas"]["Row"];
       };
     };
   };

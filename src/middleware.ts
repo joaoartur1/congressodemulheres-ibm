@@ -6,6 +6,8 @@ const PROTECTED_ROUTES: Record<string, "tesouraria" | "recepcao" | "camisas"> = 
   "/gestao": "tesouraria",
   "/checkin": "recepcao",
   "/gestao-camisas": "camisas",
+  "/entrega-camisas": "camisas",
+  "/venda-estande": "camisas",
 };
 
 export async function middleware(request: NextRequest) {
@@ -61,5 +63,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/gestao/:path*", "/checkin/:path*", "/gestao-camisas/:path*"],
+  matcher: [
+    "/gestao/:path*",
+    "/checkin/:path*",
+    "/gestao-camisas/:path*",
+    "/entrega-camisas/:path*",
+    "/venda-estande/:path*",
+  ],
 };
