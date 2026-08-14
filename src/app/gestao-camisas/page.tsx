@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ToastProvider";
 import { BadgeStatus } from "@/components/ui";
-import { MODELOS_CAMISA, TAMANHOS_CAMISA, CORTES_CAMISA } from "@/lib/config";
+import { MODELOS_CAMISA, TAMANHOS_CAMISA, CORTES_CAMISA, IDADES_CAMISA_INFANTIL } from "@/lib/config";
 import { formatMoeda, formatNumero, descricaoTamanhoCamisa } from "@/lib/utils";
 import type { Database } from "@/lib/supabase/types";
 
@@ -85,7 +85,10 @@ export default function GestaoCamisasPage() {
           qtd: pedidosModelo.filter((p) => p.tamanho_camisa === t && p.corte_camisa === c).length,
         }))
       ),
-      { label: "Infantil", qtd: pedidosModelo.filter((p) => p.idade_crianca !== null).length },
+      ...IDADES_CAMISA_INFANTIL.map((idade) => ({
+        label: `${idade} ${idade === 1 ? "ano" : "anos"}`,
+        qtd: pedidosModelo.filter((p) => p.idade_crianca === idade).length,
+      })),
     ].filter((t) => t.qtd > 0);
     return { ...m, pedidos: pedidosModelo, pagosModelo, pendentesModelo, tamanhos };
   }).filter((m) => m.pedidos.length > 0);
