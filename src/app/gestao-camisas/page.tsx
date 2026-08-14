@@ -76,6 +76,8 @@ export default function GestaoCamisasPage() {
 
   const porModelo = MODELOS_CAMISA.map((m) => {
     const pedidosModelo = pedidos.filter((p) => p.modelo_camisa === m.id);
+    const pagosModelo = pedidosModelo.filter((p) => p.status_pagamento === "Confirmado").length;
+    const pendentesModelo = pedidosModelo.length - pagosModelo;
     const tamanhos = [
       ...TAMANHOS_CAMISA.flatMap((t) =>
         CORTES_CAMISA.map((c) => ({
@@ -85,7 +87,7 @@ export default function GestaoCamisasPage() {
       ),
       { label: "Infantil", qtd: pedidosModelo.filter((p) => p.idade_crianca !== null).length },
     ].filter((t) => t.qtd > 0);
-    return { ...m, pedidos: pedidosModelo, tamanhos };
+    return { ...m, pedidos: pedidosModelo, pagosModelo, pendentesModelo, tamanhos };
   }).filter((m) => m.pedidos.length > 0);
 
   const pedidosFiltrados = pedidos
@@ -149,10 +151,16 @@ export default function GestaoCamisasPage() {
           <div className="mb-10 space-y-6">
             {porModelo.map((m) => (
               <div key={m.id}>
-                <div className="mb-2.5 flex items-baseline gap-2">
+                <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
                   <h4 className="font-titulo text-base font-bold text-roxo">{m.nome}</h4>
                   <span className="text-[0.78rem] text-muted">
                     ({formatNumero(m.pedidos.length)} {m.pedidos.length === 1 ? "pedido" : "pedidos"})
+                  </span>
+                  <span className="text-[0.75rem] font-semibold text-sucesso">
+                    ✅ {formatNumero(m.pagosModelo)} paga{m.pagosModelo === 1 ? "" : "s"}
+                  </span>
+                  <span className="text-[0.75rem] font-semibold text-aviso">
+                    ⏳ {formatNumero(m.pendentesModelo)} pendente{m.pendentesModelo === 1 ? "" : "s"}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
