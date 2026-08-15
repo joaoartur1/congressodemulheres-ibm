@@ -239,6 +239,17 @@ export interface Database {
         };
         Returns: Database["public"]["Tables"]["pedidos_camisas"]["Row"];
       };
+      criar_pedido_extra: {
+        Args: {
+          p_nome: string;
+          p_cpf: string;
+          p_whatsapp: string;
+          p_modelo: string;
+          p_tamanho: string;
+          p_corte: string;
+        };
+        Returns: Database["public"]["Tables"]["pedidos_camisas"]["Row"];
+      };
     };
   };
 }

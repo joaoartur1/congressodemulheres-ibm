@@ -18,6 +18,7 @@ const TABS_SECUNDARIAS: { href: string; label: string }[] = [
   { href: "/paleta-e-estilo", label: "Paleta e Estilo" },
   { href: "/local", label: "Local e Hospedagem" },
   { href: "/perguntas-frequentes", label: "Perguntas Frequentes" },
+  { href: "/camisa-extra", label: "Camisa Extra" },
   { href: "/suporte", label: "Suporte" },
 ];
 
